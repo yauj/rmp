@@ -86,6 +86,7 @@ const renderPrediction = (mapEnabled: boolean, selectedNode: NodeId = SELECTED_N
         app: {
             ...initialState.app,
             telemetry: { ...initialState.app.telemetry, project: false },
+            preference: { ...initialState.app.preference, autoParallel: true },
         },
         param: {
             ...initialState.param,

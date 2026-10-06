@@ -107,9 +107,12 @@ export const parseVersionFromSave = (saveStr: string): number => {
 };
 
 /**
- * Load the tutorial.
+ * Load the default map (Jeremy's Pearl River Delta snapshot; update the filename when a newer one is saved).
  */
-export const getInitialParam = async () => JSON.stringify((await import('../saves/tutorial.json')).default);
+export const getTutorialParam = async () => JSON.stringify((await import('../saves/tutorial.json')).default);
+
+export const getInitialParam = async () =>
+    JSON.stringify((await import('../../yauj/saves/RailMapToolkit_PearlRiverDelta_20260731.json')).default);
 
 /**
  * Upgrade the passed param to the latest format.

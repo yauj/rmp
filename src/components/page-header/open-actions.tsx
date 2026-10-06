@@ -1,9 +1,20 @@
-import { Badge, IconButton, Menu, MenuButton, MenuItem, MenuList, useDisclosure } from '@chakra-ui/react';
+import {
+    Badge,
+    Button,
+    IconButton,
+    Menu,
+    MenuButton,
+    MenuDivider,
+    MenuGroup,
+    MenuItem,
+    MenuList,
+    useDisclosure,
+} from '@chakra-ui/react';
 import rmgRuntime, { logger } from '@railmapgen/rmg-runtime';
 import { MultiDirectedGraph } from 'graphology';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdInsertDriveFile, MdNoteAdd, MdOpenInNew, MdSchool, MdUpload } from 'react-icons/md';
+import { MdFolderOpen, MdInsertDriveFile, MdNoteAdd, MdOpenInNew, MdSave, MdSchool, MdUpload } from 'react-icons/md';
 import { EdgeAttributes, Events, GraphAttributes, LocalStorageKey, NodeAttributes } from '../../constants/constants';
 import { GlobalAlertId } from '../../constants/global-alerts';
 import { useRootDispatch, useRootSelector } from '../../redux';
@@ -11,14 +22,17 @@ import { setSvgViewBoxMin, setSvgViewBoxZoom } from '../../redux/param/param-sli
 import { replaceProject } from '../../redux/project-history';
 import { setGlobalAlert } from '../../redux/runtime/runtime-slice';
 import { getCanvasSize } from '../../util/helpers';
+import { listYaujSaves, readYaujSave } from '../../util/download';
+import { setYaujLoadedName } from '../../util/yauj-export';
 import { useWindowSize } from '../../util/hooks';
 import { pullServerImages, saveImagesFromParam } from '../../util/image';
 import { saveManagerChannel, SaveManagerEvent, SaveManagerEventType } from '../../util/rmt-save';
-import { getInitialParam, parseVersionFromSave, RMPSave, upgrade } from '../../util/save';
+import { getTutorialParam, parseVersionFromSave, RMPSave, upgrade } from '../../util/save';
 import ConfirmOverwriteDialog from './confirm-overwrite-dialog';
 import ImportFromAarc from './import-from-aarc';
 import RmgParamAppClip from './rmg-param-app-clip';
 import RmpGalleryAppClip from './rmp-gallery-app-clip';
+import YaujExportDialog from './yauj-export-dialog';
 
 export default function OpenActions() {
     const dispatch = useRootDispatch();
@@ -37,7 +51,11 @@ export default function OpenActions() {
     const [isOpenGallery, setIsOpenGallery] = React.useState(false);
     const [isOpenAarc, setIsOpenAarc] = React.useState(false);
 
+    // Name of the file being opened, committed once the user confirms the overwrite.
+    const pendingNameRef = React.useRef<string | undefined>(undefined);
+
     const handleNew = () => {
+        setYaujLoadedName(undefined);
         const graph = new MultiDirectedGraph<NodeAttributes, EdgeAttributes, GraphAttributes>().export();
         dispatch(
             replaceProject({
@@ -82,9 +100,10 @@ export default function OpenActions() {
 
     const handleConfirmLoad = async () => {
         if (paramToLoad) {
+            setYaujLoadedName(pendingNameRef.current);
             await loadParam(paramToLoad);
 
-            const initialParam = await getInitialParam();
+            const initialParam = await getTutorialParam();
             if (paramToLoad.length === initialParam.length) {
                 // this is a tutorial, so we need to set the view box to the default
                 dispatch(setSvgViewBoxMin({ x: -10, y: -13 }));
@@ -102,6 +121,7 @@ export default function OpenActions() {
     const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         logger.debug('OpenActions.handleUpload():: received file', file);
+        pendingNameRef.current = file?.name;
 
         if (file?.type !== 'application/json') {
             dispatch(
@@ -138,8 +158,24 @@ export default function OpenActions() {
         event.target.value = '';
     };
 
+    // Dev only (`npm run dev`): saves in yauj/saves, newest first.
+    const [yaujSaves, setYaujSaves] = React.useState<{ name: string; mtime: number }[]>([]);
+    const refreshYaujSaves = async () => {
+        if (import.meta.env.DEV) setYaujSaves(await listYaujSaves());
+    };
+    const yaujJsons = yaujSaves.filter(f => f.name.endsWith('.json'));
+    const [isYaujExportOpen, setIsYaujExportOpen] = React.useState(false);
+    const handleOpenYaujSave = async (name: string) => {
+        pendingNameRef.current = name;
+        const paramStr = await readYaujSave(name);
+        setParamToLoad(paramStr);
+        setVersionToLoad(parseVersionFromSave(paramStr));
+        onConfirmOpen();
+    };
+
     const handleLoadTutorial = async () => {
-        const initialParam = await getInitialParam();
+        pendingNameRef.current = undefined;
+        const initialParam = await getTutorialParam();
         setParamToLoad(initialParam);
         setVersionToLoad(parseVersionFromSave(initialParam));
         onConfirmOpen();
@@ -168,7 +204,7 @@ export default function OpenActions() {
     return (
         <>
             <Menu>
-                <MenuButton as={IconButton} size="sm" variant="ghost" icon={<MdUpload />} />
+                <MenuButton as={IconButton} size="sm" variant="ghost" icon={<MdUpload />} onClick={refreshYaujSaves} />
                 <MenuList>
                     <MenuItem icon={<MdNoteAdd />} onClick={handleNew}>
                         {t('header.open.new')}
@@ -214,6 +250,32 @@ export default function OpenActions() {
                 <RmpGalleryAppClip isOpen={isOpenGallery} onClose={() => setIsOpenGallery(false)} />
                 <ImportFromAarc isOpen={isOpenAarc} onClose={() => setIsOpenAarc(false)} />
             </Menu>
+
+            {import.meta.env.DEV && (
+                <Menu onOpen={refreshYaujSaves}>
+                    <MenuButton as={Button} size="sm" variant="ghost" leftIcon={<MdFolderOpen />}>
+                        yauj
+                    </MenuButton>
+                    <MenuList>
+                        <MenuItem icon={<MdSave />} onClick={() => setIsYaujExportOpen(true)}>
+                            yauj export
+                        </MenuItem>
+                        <MenuDivider />
+                        <MenuGroup title="yauj import">
+                            {yaujJsons.length === 0 && <MenuItem isDisabled>No .json files in yauj/saves</MenuItem>}
+                            {yaujJsons.map(f => (
+                                <MenuItem key={f.name} onClick={() => handleOpenYaujSave(f.name)}>
+                                    {f.name}
+                                </MenuItem>
+                            ))}
+                        </MenuGroup>
+                    </MenuList>
+                </Menu>
+            )}
+
+            {import.meta.env.DEV && (
+                <YaujExportDialog isOpen={isYaujExportOpen} onClose={() => setIsYaujExportOpen(false)} />
+            )}
 
             <ConfirmOverwriteDialog
                 isOpen={isConfirmOpen}

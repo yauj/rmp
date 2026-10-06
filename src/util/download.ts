@@ -15,6 +15,27 @@ export const downloadAs = (filename: string, type: string, data: any) => {
     downloadBlobAs(filename, blob);
 };
 
+const YAUJ_SAVES_URL = `${import.meta.env.BASE_URL}__yauj/saves`;
+
+/** Dev only: list the .json/.svg files in yauj/saves, newest first. */
+export const listYaujSaves = async (): Promise<{ name: string; mtime: number }[]> => {
+    try {
+        const res = await fetch(YAUJ_SAVES_URL);
+        return res.ok ? await res.json() : [];
+    } catch {
+        return [];
+    }
+};
+
+/** Dev only: write (or overwrite) a .json/.svg file in yauj/saves. Throws on failure. */
+export const writeYaujSave = async (name: string, data: string) => {
+    const res = await fetch(`${YAUJ_SAVES_URL}/${encodeURIComponent(name)}`, { method: 'PUT', body: data });
+    if (!res.ok) throw new Error(`Failed to write ${name}: ${res.status}`);
+};
+
+export const readYaujSave = async (name: string): Promise<string> =>
+    (await fetch(`${YAUJ_SAVES_URL}/${encodeURIComponent(name)}`)).text();
+
 export const downloadBlobAs = (filename: string, blob: Blob) => {
     const url = window.URL.createObjectURL(blob);
 
