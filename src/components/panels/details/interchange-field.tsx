@@ -37,8 +37,12 @@ export const InterchangeField = (props: {
     stationType: StationType;
     defaultAttrs: StationAttributesWithInterchange;
     maximumTransfers: [number, number, number];
+    /**
+     * Optional per-line status select, stored at index 6 of each interchange info.
+     */
+    statusOptions?: Record<string, string>;
 }) => {
-    const { stationType, defaultAttrs, maximumTransfers } = props;
+    const { stationType, defaultAttrs, maximumTransfers, statusOptions } = props;
 
     const { t } = useTranslation();
     const dispatch = useRootDispatch();
@@ -172,6 +176,7 @@ export const InterchangeField = (props: {
                         onDown={handleDown(i)}
                         onDelete={handleDelete(i)}
                         onUpdate={handleUpdate(i)}
+                        statusOptions={statusOptions}
                         foshan={stationType === StationType.GzmtrInt2024 || stationType === StationType.GzmtrInt}
                     />
                 </React.Fragment>

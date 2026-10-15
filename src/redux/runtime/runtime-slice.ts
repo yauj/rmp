@@ -3,6 +3,7 @@ import { MonoColour } from '@railmapgen/rmg-palette-resources';
 import { Translation } from '@railmapgen/rmg-translate';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { Draft } from 'immer';
+import { YAUJ_METRO_COLOR } from '../../constants/yauj-colors';
 import type { RootState } from '..';
 import { CityCode, Id, NodeId, NodeType, RuntimeMode, StationCity, Theme } from '../../constants/constants';
 import { GlobalAlertId } from '../../constants/global-alerts';
@@ -113,7 +114,8 @@ const initialState: RuntimeState = {
     mode: 'free',
     lastTool: undefined,
     keepLastPath: false,
-    theme: [CityCode.Shanghai, 'sh1', '#E3002B', MonoColour.white],
+    // yauj branch: start from the Kwun Tong Line colour, the default metro colour of the yauj styles.
+    theme: [...YAUJ_METRO_COLOR],
     paletteAppClip: {
         input: undefined,
         output: undefined,

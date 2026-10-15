@@ -102,6 +102,15 @@ export enum LineStyleType {
     ChongqingRTLineBadge = 'chongqingrt-line-badge',
     ChengduRTOutsideFareGates = 'chengdurt-outside-fare-gates',
     Shinkansen = 'shinkansen',
+    YaujMetro = 'yauj-metro',
+    YaujRail = 'yauj-rail',
+    YaujLightRail = 'yauj-light-rail',
+    YaujConstruction = 'yauj-construction',
+    YaujOsi = 'yauj-osi',
+    YaujInterchange = 'yauj-interchange',
+    YaujLightRailConstruction = 'yauj-light-rail-construction',
+    YaujLimited = 'yauj-limited',
+    YaujBorder = 'yauj-border',
 }
 
 export const isVisibleLineStyle = (style: LineStyleType): boolean => style !== LineStyleType.Unknown;
@@ -142,6 +151,15 @@ export interface ExternalLineStyleAttributes {
     [LineStyleType.ChongqingRTLineBadge]?: ChongqingRTLineBadgeAttributes;
     [LineStyleType.ChengduRTOutsideFareGates]?: ChengduRTOutsideFareGatesAttributes;
     [LineStyleType.Shinkansen]?: ShinkansenAttributes;
+    [LineStyleType.YaujMetro]?: SingleColorAttributes;
+    [LineStyleType.YaujRail]?: LondonRailAttributes;
+    [LineStyleType.YaujLightRail]?: MTRLightRailAttributes;
+    [LineStyleType.YaujConstruction]?: BjsubwayDottedAttributes;
+    [LineStyleType.YaujOsi]?: MTRUnpaidAreaAttributes;
+    [LineStyleType.YaujInterchange]?: MTRPaidAreaAttributes;
+    [LineStyleType.YaujLightRailConstruction]?: MTRLightRailAttributes;
+    [LineStyleType.YaujLimited]?: MTRRaceDaysAttributes;
+    [LineStyleType.YaujBorder]?: SingleColorAttributes;
 }
 
 export const LINE_WIDTH = 5;

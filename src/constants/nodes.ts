@@ -13,6 +13,10 @@ import type { GzmtrLineBadgeAttributes } from '../components/svgs/nodes/gzmtr-li
 import type { BjsubwayNumLineBadgeAttributes } from '../components/svgs/nodes/bjsubway-num-line-badge';
 import type { BjsubwayTextLineBadgeAttributes } from '../components/svgs/nodes/bjsubway-text-line-badge';
 import type { SuzhouRTNumLineBadgeAttributes } from '../components/svgs/nodes/suzhourt-num-line-badge';
+import type { YaujLineBadgeAttributes } from '../components/svgs/nodes/yauj-line-badge';
+import type { YaujLegendAttributes } from '../components/svgs/nodes/yauj-legend';
+import type { YaujMapTitleAttributes } from '../components/svgs/nodes/yauj-map-title';
+import type { YaujPlaceLabelAttributes } from '../components/svgs/nodes/yauj-place-label';
 import type { BerlinUBahnLineBadgeAttributes } from '../components/svgs/nodes/berlin-u-bahn-line-badge';
 import type { BerlinSBahnLineBadgeAttributes } from '../components/svgs/nodes/berlin-s-bahn-line-badge';
 import type { ChongqingRTNumLineBadgeAttributes } from '../components/svgs/nodes/chongqingrt-num-line-badge';
@@ -46,6 +50,10 @@ export enum MiscNodeType {
     BjsubwayNumLineBadge = 'bjsubway-num-line-badge',
     BjsubwayTextLineBadge = 'bjsubway-text-line-badge',
     SuzhouRTNumLineBadge = 'suzhourt-num-line-badge',
+    YaujLineBadge = 'yauj-line-badge',
+    YaujPlaceLabel = 'yauj-place-label',
+    YaujMapTitle = 'yauj-map-title',
+    YaujLegend = 'yauj-legend',
     BerlinSBahnLineBadge = 'berlin-s-bahn-line-badge',
     BerlinUBahnLineBadge = 'berlin-u-bahn-line-badge',
     ChongqingRTNumLineBadge = 'chongqingrt-num-line-badge',
@@ -79,6 +87,10 @@ export interface MiscNodeAttributes {
     [MiscNodeType.BjsubwayNumLineBadge]?: BjsubwayNumLineBadgeAttributes;
     [MiscNodeType.BjsubwayTextLineBadge]?: BjsubwayTextLineBadgeAttributes;
     [MiscNodeType.SuzhouRTNumLineBadge]?: SuzhouRTNumLineBadgeAttributes;
+    [MiscNodeType.YaujLineBadge]?: YaujLineBadgeAttributes;
+    [MiscNodeType.YaujPlaceLabel]?: YaujPlaceLabelAttributes;
+    [MiscNodeType.YaujMapTitle]?: YaujMapTitleAttributes;
+    [MiscNodeType.YaujLegend]?: YaujLegendAttributes;
     [MiscNodeType.BerlinSBahnLineBadge]?: BerlinSBahnLineBadgeAttributes;
     [MiscNodeType.BerlinUBahnLineBadge]?: BerlinUBahnLineBadgeAttributes;
     [MiscNodeType.ChongqingRTNumLineBadge]?: ChongqingRTNumLineBadgeAttributes;

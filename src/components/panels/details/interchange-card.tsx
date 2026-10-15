@@ -17,10 +17,14 @@ interface InterchangeCardProps {
     onUp?: (index: number) => void;
     onDown?: (index: number) => void;
     foshan?: boolean;
+    /**
+     * Show a status select per line (index 6 of the info). The first option is the default.
+     */
+    statusOptions?: Record<string, string>;
 }
 
 export default function InterchangeCard(props: InterchangeCardProps) {
-    const { interchangeList, maximumTransfers, onAdd, onDelete, onUpdate, onDown, onUp, foshan } = props;
+    const { interchangeList, maximumTransfers, onAdd, onDelete, onUpdate, onDown, onUp, foshan, statusOptions } = props;
     const dispatch = useRootDispatch();
     const {
         paletteAppClip: { input, output },
@@ -39,6 +43,7 @@ export default function InterchangeCard(props: InterchangeCardProps) {
                 ...output,
                 interchangeList[indexRequestedTheme][4],
                 interchangeList[indexRequestedTheme][5],
+                ...interchangeList[indexRequestedTheme].slice(6),
             ]);
             setIndexRequestedTheme(undefined);
         } else if (!input) {
@@ -69,6 +74,15 @@ export default function InterchangeCard(props: InterchangeCardProps) {
             hidden: !foshan,
             onChange: val =>
                 onUpdate?.(i, [it[0], it[1], it[2], it[3], it[4], it[5], val ? 'fs' : 'gz', ...it.slice(7)]),
+        },
+        {
+            type: 'select',
+            label: t('panel.details.stations.yauj.status.label'),
+            value: it[6] ?? Object.keys(statusOptions ?? {})[0],
+            options: statusOptions ?? {},
+            minW: '90px',
+            hidden: !statusOptions,
+            onChange: val => onUpdate?.(i, [it[0], it[1], it[2], it[3], it[4], it[5], val as string, ...it.slice(7)]),
         },
     ]);
 

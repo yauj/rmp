@@ -23,7 +23,7 @@ Customisations on this branch, all local to Jeremy's setup:
   - **yauj export**: opens a dialog asking for the region and the "data up to" date, then writes
     `RailMapToolkit_<Region>_<YYYYMMDD>.json` and `.svg` (SVG 2.0, Download dialog defaults) into
     `yauj/saves/`. Defaults: region from the last file opened (yauj import or the Open file
-    picker); date from the map's own `(YYYY-MM-DD)` title text node (today if none). The date is
+    picker); date from the map's own title (the yauj map title node, or a `(YYYY-MM-DD)` text node; today if none). The date is
     the map's data date, not the save date. The dialog warns if the file already exists (it is overwritten).
   - The existing Open/Download buttons are unchanged (`src/util/yauj-export.ts` holds the export logic).
 
@@ -94,8 +94,105 @@ Foshan, Zhongshan, Jiangmen, Zhaoqing, Qingyuan, Huizhou, Zhuhai.
 - Trams / light rail / APM: `mtr-light-rail` style, often with no stations (virtual endpoints).
 - Large text labels are city names; the map title carries the snapshot date.
 
+### Line badge (label) convention (set in the Pearl River Delta map; reuse in the other regions)
+All line badges are the custom `yauj-line-badge` node (`src/components/svgs/nodes/yauj-line-badge.tsx`).
+The dropdown is a single "Tier" setting; colour is always the line's own colour.
+| Tier (dropdown) | Drawn as | Max speed | Example in PRD |
+|---|---|---|---|
+| Normal Metro | circle | <= 80 km/h | SZ 1-5, 7-10, 12, 16; GZ 1/2/7/8/10-12; Guangfo; Macao; HK Tsuen Wan/Island/Kwun Tong/TKO/South Island/Disneyland |
+| Fast Speed Metro | circle + inner outline | < 120 km/h (i.e. ~100) | SZ 6, SZ 13, GZ 4/5/6 (design ~100), GZ 13, FS 2 |
+| Higher Speed Metro | rounded square | < 160 km/h (i.e. 120-140) | SZ 6B/11/14/20, GZ 3/9/14/21, DG R1/R2, HK EAL (KCR) / TML / AEL / TCL |
+| High Speed Metro | rounded square + inner outline | >= 160 km/h | GZ 18/22 |
+| Regional Rail | wide rectangle | < 140 km/h | 珠机城际 (120) |
+| Higher Speed Regional Rail | wide rectangle + inner outline | >= 140 km/h (so 穗深, 140 on phase 1 / 160 elsewhere, is included) | 广州东环, 穗深 (160), 广珠, 广清, 广肇, 广惠, 琶莲 (200) |
+
+Metro vs regional is the service type; speed decides the tier within it. Use the line's designed maximum
+speed from zh.wikipedia (最高速度 in the infobox), not the current operating speed.
+
+- Fields: main text (number, letters such as `6B`, or a Chinese name), optional second line (English;
+  leave empty for a number-style badge), tier, colour.
+- Branch lines: type the letter in the main text (`6B`). The old "Is branch line" switch belongs to the
+  legacy Suzhou badge and is no longer used.
+- **Stock-RMP conversion (yauj -> stock):** the yauj nodes and styles only exist on this branch. To get a JSON that stock
+  RMP opens, run `npm run yauj:stock -- yauj/saves/<save>.json` (script: `yauj/scripts/to-stock-badges.mjs`). It writes
+  `yauj/stock/<name>_stock.json` and never touches the input. SVG exports need no conversion. It converts everything:
+  - Badges (lossy, stock has fewer looks): Normal -> Chongqing round (num/text); Fast and Higher number badges -> Suzhou
+    square (`6B` becomes 6 + branch switch); Fast text -> Chongqing round text (outline lost); Higher/High text ->
+    Chongqing 2021 text (not rapid); High number -> Chongqing 2021 number; Regional and Higher Speed Regional ->
+    Chongqing 2021 text, rapid (wide rectangle). Positions are re-anchored (yauj badges are centre-anchored).
+  - Lines: Metro and City border -> single-color; Rail -> london-rail (Slower speed = limited service); Light rail ->
+    mtr-light-rail; Limited service -> mtr-race-days; Under construction and Light rail under construction ->
+    bjsubway-dotted; OSI -> mtr-unpaid-area; In-station interchange -> mtr-paid-area.
+  - Stations: in service, terminus and interchange -> mtr (closed / under-construction interchange lines are dropped,
+    the terminus border colour is lost); Under construction, Closed and stations whose lines are all closed / under
+    construction -> bjsubway-basic; light rail termini -> chongqingrt-basic.
+  - Text: place labels -> a Chinese and an English text node; map title -> three text nodes; the legend is removed.
+  The reverse is `npm run yauj:styles` (`to-yauj-styles.mjs`); a round trip keeps all lines, station kinds, labels and
+  the title, but not terminus colours, dotted interchange circles, or the legend. Keep the yauj save as the master.
+- The legacy `chongqingrt-*` and `suzhourt-*` badge nodes still exist (unchanged from upstream) and
+  render old saves; do not use them for new work.
+- The node is anchored at its centre. Legacy round/Suzhou badges were anchored top-left.
+- For JingJinJi / YangtzeRiverDelta, classify each line into the tiers above and pick the matching Tier.
+
+### yauj line, station and place-label styles (reuse in the other regions)
+Custom styles that exist only on this branch, for the same reason as `yauj-line-badge`:
+| Kind | Name in RMP | Drawn as |
+|---|---|---|
+| Line | yauj-metro (all line styles are listed as "Yauj - …") | solid line (was `single-color`) |
+| Line | yauj-rail | London-rail dashes (was `london-rail`) |
+| Line | yauj-light-rail | thin line (was `mtr-light-rail`) |
+| Line | yauj-construction | Beijing dotted, under construction (was `bjsubway-dotted`) |
+| Line | yauj-osi | HK dashed out-of-station interchange (was `mtr-unpaid-area`) |
+| Line | yauj-interchange | HK solid in-station interchange (was `mtr-paid-area`) |
+| Line | yauj-light-rail-construction | thin dotted line in the line colour, light rail expansion |
+| Line | yauj-limited | dashed in the line colour, limited service / express overlay (was `mtr-race-days`) |
+| Line | yauj-border | city border, solid `#ebebeb` |
+| Station | yauj-station | "Station type" dropdown: In service (HK pill), Under construction, Closed, Terminus, Light rail terminus (small), Light rail terminus under construction (small, dotted) |
+| Node | yauj-legend | fixed legend of every line style, station type and badge tier, drawn with the real styles |
+| Node | yauj-map-title | map title block: Chinese name (80), English name (50), date in brackets (40), black; the export reads the date from it |
+| Node | yauj-place-label | one node, Chinese + English linked, Preset = City (20/15) or District (15/10) |
+
+- Under construction / Closed stations: Beijing dotted circle, name hidden, label `(施工封闭)` / `(暂缓开通)` with an
+  English line below (`(U/C)` / `(Closed)`), same small size.
+- Interchanges: add every line at the station (open ones too) and set each line's Status: In service, Terminus,
+  Closed or Under construction. In service lines share a pill (ticks shown only when 2+ lines are solid), a Terminus
+  line gets a border in its line colour, Closed / Under construction lines are thin dotted circles next to (or
+  between) the solid ones. One open line plus one closed line = an empty circle plus a dotted circle.
+- Light rail terminus: small circle in the line colour, only where the light rail does not end at a metro/rail station.
+- Default colours: metro, construction and limited service start as the Kwun Tong Line (`#01a040`), light rail and
+  light rail construction as the Hong Kong Island Tram (`#007549`), rail as the Hong Kong high speed rail colour
+  (`#9d948b`), see `src/constants/yauj-colors.ts`. The sidebar colour button also starts as the Kwun Tong Line, and the
+  sidebar line icons use these defaults. Light rail styles do not take the sidebar colour (they keep the tram default).
+- Palette sync: `npm run yauj:palette -- yauj/saves/<save>.json [--write]` brings every line, badge, station and interchange
+  colour up to date with the current RMG palette (dry run unless `--write`; writes `<save>_palette-synced.json`).
+  `npm run yauj:terminus-colors` does the opposite for lines whose Terminus stations carry the newer colour.
+- Yauj - Rail has a "Slower speed" switch (inverted dashes, the old limited service look).
+- Terminus (station type): HK-sized circle with a border in the line colour, name drawn like the HK station.
+  Use it where a limited service line just ends early.
+- Convert a stock-style save: `npm run yauj:styles -- yauj/saves/<save>.json` (script: `yauj/scripts/to-yauj-styles.mjs`).
+  Writes `<save>_yauj-styles.json` beside it, never touches the input, and lists stations whose status disagrees with the
+  lines they touch.
+
 Label each item with its mode (metro / HSR / intercity / mainline-suburban / tram-light-rail) and
 status (in service, dashed, suspended) so Jeremy knows which style and colour to use.
+
+## Research cache (git-ignored, `yauj/cache/`)
+Speeds and wiki pages already looked up are cached so they need not be researched again:
+`line-speeds.json` (JingJinJi / YangtzeRiverDelta lines, from zh.wikipedia infoboxes),
+`manual-speeds.json` (Pearl River Delta plus values Jeremy stated), `wiki-pages.json` (raw wikitext, 4 MB).
+Check these before searching. Refresh or extend with `python3 yauj/scripts/line-speeds/run.py [Region]`.
+
+Research on new light rail lines and intermediate termini (short runs) is cached beside them:
+- `light-rail-expansions.json`: `{ "fetched", "about", "JingJinJi" | "YangtzeRiverDelta" | "PearlRiverDelta": [ { "system", "line",
+  "status" (operating | suspended | under-construction | planned | on-hold | stopped | dismantled), "section", "timing",
+  "src" (zh.wikipedia title or URL), "note"? } ] }`. An entry with system "checked, none found" lists what was searched.
+- `intermediate-termini.json`: `{ "fetched", "about", "lines": { "<Region>|<line id>": [ { "station", "pattern", "runs", "since",
+  "status" (current | historic | unclear | planned), "src", "note"? } ] } }`; `"<Region>|none found"` lists lines checked
+  without a result. The Pearl River Delta list is a plain station list from an earlier, lower-confidence pass.
+- `short-run-scan.json`: raw keyword hits (大小交路, 小交路, 区间车 ...) per line page, keyed like `line-speeds.json`.
+Scripts in `yauj/scripts/research/`: `scan-short-runs.py <Region>...` builds the scan, `show-scan.py <Region>` prints it
+compactly, `show-page.py "<title>"` and `grep-page.py "<title>" [regex]` read cached wiki pages. All use the shared
+`fetch()` in `yauj/scripts/line-speeds/speeds.py`, so run only one at a time (they share one cache file).
 
 ## Update workflow
 Jeremy names a region and a window (baseline snapshot date to today, or to an end date). Report

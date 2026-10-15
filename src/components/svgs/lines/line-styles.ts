@@ -34,6 +34,17 @@ import shinkansen from './styles/shinkansen';
 import shmetroVirtualInt from './styles/shmetro-virtual-int';
 import singleColor from './styles/single-color';
 import unknownLineStyle from './styles/unknown';
+import {
+    yaujBorder,
+    yaujConstruction,
+    yaujInterchange,
+    yaujLightRail,
+    yaujLightRailConstruction,
+    yaujLimited,
+    yaujMetro,
+    yaujOsi,
+    yaujRail,
+} from './styles/yauj-lines';
 
 /**
  * Line-style registry kept separate from line paths so style comparison does not create a path-registry cycle.
@@ -74,4 +85,13 @@ export const lineStyles = {
     [LineStyleType.ChongqingRTLineBadge]: chongqingRTLineBadge,
     [LineStyleType.ChengduRTOutsideFareGates]: chengduRTOutsideFareGates,
     [LineStyleType.Shinkansen]: shinkansen,
+    [LineStyleType.YaujMetro]: yaujMetro,
+    [LineStyleType.YaujRail]: yaujRail,
+    [LineStyleType.YaujLightRail]: yaujLightRail,
+    [LineStyleType.YaujConstruction]: yaujConstruction,
+    [LineStyleType.YaujOsi]: yaujOsi,
+    [LineStyleType.YaujInterchange]: yaujInterchange,
+    [LineStyleType.YaujLightRailConstruction]: yaujLightRailConstruction,
+    [LineStyleType.YaujLimited]: yaujLimited,
+    [LineStyleType.YaujBorder]: yaujBorder,
 };

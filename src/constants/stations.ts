@@ -41,6 +41,7 @@ import type { CsmetroBasicStationAttributes } from '../components/svgs/stations/
 import type { CsmetroIntStationAttributes } from '../components/svgs/stations/csmetro-int';
 import type { HzmetroBasicStationAttributes } from '../components/svgs/stations/hzmetro-basic';
 import type { HzmetroIntStationAttributes } from '../components/svgs/stations/hzmetro-int';
+import type { YaujStationAttributes } from '../components/svgs/stations/yauj-station';
 
 export enum StationType {
     ShmetroBasic = 'shmetro-basic',
@@ -83,6 +84,7 @@ export enum StationType {
     CsmetroInt = 'csmetro-int',
     HzmetroBasic = 'hzmetro-basic',
     HzmetroInt = 'hzmetro-int',
+    Yauj = 'yauj-station',
 }
 
 export interface ExternalStationAttributes {
@@ -126,6 +128,7 @@ export interface ExternalStationAttributes {
     [StationType.CsmetroInt]?: CsmetroIntStationAttributes;
     [StationType.HzmetroBasic]?: HzmetroBasicStationAttributes;
     [StationType.HzmetroInt]?: HzmetroIntStationAttributes;
+    [StationType.Yauj]?: YaujStationAttributes;
 }
 
 /* ----- Below are core types for all stations, DO NOT TOUCH. ----- */

@@ -117,6 +117,18 @@
                     "displayName": "Suzhou Rail Transit num line badge",
                     "branch": "Is branch line"
                 },
+                "yaujLineBadge": {
+                    "displayName": "Yauj line badge",
+                    "main": "Main text (number, letters or name)",
+                    "sub": "Second line (optional, English)",
+                    "tier": "Tier",
+                    "metro": "Normal Metro (≤ 80 km/h)",
+                    "fast": "Fast Speed Metro (< 120 km/h)",
+                    "higher": "Higher Speed Metro (< 160 km/h)",
+                    "high": "High Speed Metro (≥ 160 km/h)",
+                    "regional": "Regional Rail (< 140 km/h)",
+                    "highRegional": "Higher Speed Regional Rail (≥ 140 km/h)"
+                },
                 "chongqingRTNumLineBadge": {
                     "displayName": "Chongqing Rail Transit num line badge"
                 },
@@ -295,6 +307,23 @@
                     "createSquare": "Create square",
                     "createTriangle": "Create triangle",
                     "createCircle": "Create circle"
+                },
+                "yaujPlaceLabel": {
+                    "displayName": "Yauj city/district label",
+                    "preset": "Preset",
+                    "city": "City name",
+                    "district": "District name",
+                    "nameZh": "Chinese name",
+                    "nameEn": "English name"
+                },
+                "yaujMapTitle": {
+                    "displayName": "Yauj map title",
+                    "nameZh": "Chinese name",
+                    "nameEn": "English name",
+                    "date": "Data date (YYYY-MM-DD)"
+                },
+                "yaujLegend": {
+                    "displayName": "Yauj legend"
                 }
             },
             "stations": {
@@ -567,6 +596,23 @@
                     "displayName": "Hangzhou Metro interchange station",
                     "mirror": "Icon mirroring",
                     "scale": "Names horizontal scale"
+                },
+                "yauj": {
+                    "displayName": "Yauj station",
+                    "kind": "Station type",
+                    "normal": "In service",
+                    "construction": "Under construction",
+                    "closed": "Closed",
+                    "lightRailTerminus": "Light rail terminus",
+                    "lineColor": "Terminus",
+                    "status": {
+                        "label": "Status",
+                        "open": "In service",
+                        "terminus": "Terminus",
+                        "closed": "Closed",
+                        "construction": "Under construction"
+                    },
+                    "lightRailTerminusConstruction": "Light rail terminus under construction (small, dotted)"
                 }
             },
             "lines": {
@@ -770,6 +816,36 @@
                     "moveLayerUp": "Move layer up",
                     "moveLayerDown": "Move layer down",
                     "removeLayer": "Remove layer"
+                },
+                "yaujMetro": {
+                    "displayName": "Yauj - Metro"
+                },
+                "yaujRail": {
+                    "displayName": "Yauj - Rail",
+                    "colorBackground": "Rail colour",
+                    "colorForeground": "Rail dash colour",
+                    "limitedService": "Slower speed"
+                },
+                "yaujLightRail": {
+                    "displayName": "Yauj - Light rail"
+                },
+                "yaujConstruction": {
+                    "displayName": "Yauj - Under construction (dotted)"
+                },
+                "yaujOsi": {
+                    "displayName": "Yauj - Out-of-station interchange (dashed)"
+                },
+                "yaujInterchange": {
+                    "displayName": "Yauj - In-station interchange (solid)"
+                },
+                "yaujBorder": {
+                    "displayName": "Yauj - City border"
+                },
+                "yaujLimited": {
+                    "displayName": "Yauj - Limited service (dashed)"
+                },
+                "yaujLightRailConstruction": {
+                    "displayName": "Yauj - Light rail under construction (dotted)"
                 }
             },
             "edge": {},

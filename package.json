@@ -76,7 +76,11 @@
         "test": "vitest",
         "lint": "eslint ./src",
         "lint:fix": "eslint ./src --fix",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "yauj:stock": "node yauj/scripts/to-stock-badges.mjs",
+        "yauj:styles": "node yauj/scripts/to-yauj-styles.mjs",
+        "yauj:palette": "node yauj/scripts/sync-palette-colors.mjs",
+        "yauj:terminus-colors": "node yauj/scripts/match-lines-to-terminus.mjs"
     },
     "version": "6.0.34"
 }

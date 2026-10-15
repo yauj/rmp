@@ -82,7 +82,19 @@ export const localizedMiscNodes: { [k in LanguageCode]?: MiscNodeType[] } = {
 /* ------- Line styles ------ */
 
 const defaultLineStyle = Object.values(LineStyleType).filter(isVisibleLineStyle);
-const alwaysFrontLineStyle = [LineStyleType.SingleColor, LineStyleType.Generic];
+const alwaysFrontLineStyle = [
+    LineStyleType.YaujMetro,
+    LineStyleType.YaujRail,
+    LineStyleType.YaujLightRail,
+    LineStyleType.YaujConstruction,
+    LineStyleType.YaujLightRailConstruction,
+    LineStyleType.YaujLimited,
+    LineStyleType.YaujOsi,
+    LineStyleType.YaujInterchange,
+    LineStyleType.YaujBorder,
+    LineStyleType.SingleColor,
+    LineStyleType.Generic,
+];
 const enLineStyle = [
     LineStyleType.LondonTubeTerminal,
     LineStyleType.LondonTubeInternalInt,

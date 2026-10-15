@@ -20,13 +20,19 @@ export const getYaujDefaultRegion = (): string => {
     return loadedName.match(FILE_NAME)?.[1] ?? loadedName.replace(/\.json$/i, '');
 };
 
-/** The map's own "as of" date: a text node reading e.g. "(2026-07-31)". Returned as YYYYMMDD. */
+/** The map's own "as of" date: the yauj map title's date, or a text node reading e.g. "(2026-07-31)". Returned as YYYYMMDD. */
 export const findMapDate = (graph: {
     forEachNode: (cb: (id: string, attr: any) => void) => void;
 }): string | undefined => {
     let found: string | undefined;
     graph.forEachNode((_, attr) => {
-        const m = attr?.type === 'text' ? String(attr.text?.content ?? '').match(MAP_DATE_TEXT) : null;
+        const content =
+            attr?.type === 'text'
+                ? attr.text?.content
+                : attr?.type === 'yauj-map-title'
+                  ? attr['yauj-map-title']?.date
+                  : undefined;
+        const m = String(content ?? '').match(MAP_DATE_TEXT);
         if (m) found ??= `${m[1]}${m[2]}${m[3]}`;
     });
     return found;

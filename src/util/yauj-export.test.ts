@@ -24,6 +24,13 @@ describe('yauj export naming', () => {
         expect(findMapDate(graphOf({ a: { type: 'text', text: { content: 'x' } } }))).toBeUndefined();
     });
 
+    it('reads the date from the yauj map title node', () => {
+        const g = graphOf({
+            a: { type: 'yauj-map-title', 'yauj-map-title': { names: ['x', 'y'], date: '2026-10-15' } },
+        });
+        expect(findMapDate(g)).toBe('20261015');
+    });
+
     it('builds the base name', () => {
         expect(yaujBaseName('PearlRiverDelta', '20260731')).toBe('RailMapToolkit_PearlRiverDelta_20260731');
     });

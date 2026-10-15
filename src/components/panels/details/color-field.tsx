@@ -33,6 +33,7 @@ const dynamicColorInjectionStationKeys = [
     StationType.WuhanRTBasic,
     StationType.CsmetroBasic,
     StationType.HzmetroBasic,
+    StationType.Yauj,
 ] as const;
 const dynamicColorInjectionMiscNodeKeys = [
     MiscNodeType.Text,
@@ -44,6 +45,7 @@ const dynamicColorInjectionMiscNodeKeys = [
     MiscNodeType.BjsubwayNumLineBadge,
     MiscNodeType.BjsubwayTextLineBadge,
     MiscNodeType.SuzhouRTNumLineBadge,
+    MiscNodeType.YaujLineBadge,
     MiscNodeType.BerlinSBahnLineBadge,
     MiscNodeType.BerlinUBahnLineBadge,
     MiscNodeType.ChongqingRTNumLineBadge,
@@ -79,6 +81,9 @@ const dynamicColorInjectionLineStyleKeys = [
     LineStyleType.ChongqingRTLoop,
     LineStyleType.ChongqingRTLineBadge,
     LineStyleType.Shinkansen,
+    LineStyleType.YaujMetro,
+    LineStyleType.YaujConstruction,
+    LineStyleType.YaujLimited,
 ] as const;
 type DynamicColorInjectionStationKeys = (typeof dynamicColorInjectionStationKeys)[number];
 type DynamicColorInjectionMiscNodeKeys = (typeof dynamicColorInjectionMiscNodeKeys)[number];

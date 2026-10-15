@@ -26,6 +26,11 @@ export const Node2Font: {
     [k in NodeType]?: TextLanguage[];
 } = {
     [StationType.MTR]: [TextLanguage.mtr_zh, TextLanguage.mtr_en],
+    [StationType.Yauj]: [TextLanguage.mtr_zh, TextLanguage.mtr_en],
+    [MiscNodeType.YaujLineBadge]: [TextLanguage.mtr_zh, TextLanguage.mtr_en],
+    [MiscNodeType.YaujLegend]: [TextLanguage.mtr_zh, TextLanguage.mtr_en],
+    [MiscNodeType.YaujMapTitle]: [TextLanguage.mtr_zh, TextLanguage.mtr_en],
+    [MiscNodeType.YaujPlaceLabel]: [TextLanguage.mtr_zh, TextLanguage.mtr_en],
     [StationType.MRTBasic]: [TextLanguage.mrt],
     [StationType.MRTInt]: [TextLanguage.mrt],
     [StationType.JREastBasic]: [TextLanguage.jreast_ja, TextLanguage.jreast_en],

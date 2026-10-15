@@ -39,6 +39,7 @@ import csmetroBasicStation from './csmetro-basic';
 import csmetroIntStation from './csmetro-int';
 import hzmetroBasicStation from './hzmetro-basic';
 import hzmetroIntStation from './hzmetro-int';
+import yaujStation from './yauj-station';
 
 const stations = {
     [StationType.ShmetroBasic]: shmetroBasicStation,
@@ -81,6 +82,7 @@ const stations = {
     [StationType.CsmetroInt]: csmetroIntStation,
     [StationType.HzmetroBasic]: hzmetroBasicStation,
     [StationType.HzmetroInt]: hzmetroIntStation,
+    [StationType.Yauj]: yaujStation,
 };
 
 export default stations;

@@ -117,6 +117,18 @@
                     "displayName": "蘇州軌道交通數字線路標識",
                     "branch": "是否支線"
                 },
+                "yaujLineBadge": {
+                    "displayName": "Yauj 線路標識",
+                    "main": "主文字（數字、字母或名稱）",
+                    "sub": "第二行（可選，英文）",
+                    "tier": "等級",
+                    "metro": "普通地鐵（≤ 80 km/h）",
+                    "fast": "快速地鐵（< 120 km/h）",
+                    "higher": "較高速地鐵（< 160 km/h）",
+                    "high": "高速地鐵（≥ 160 km/h）",
+                    "regional": "市域鐵路（< 140 km/h）",
+                    "highRegional": "較高速市域鐵路（≥ 140 km/h）"
+                },
                 "chongqingRTNumLineBadge": {
                     "displayName": "重慶軌道交通數字線路標識"
                 },
@@ -295,6 +307,23 @@
                     "createSquare": "建立正方形",
                     "createTriangle": "建立三角形",
                     "createCircle": "建立圓形"
+                },
+                "yaujPlaceLabel": {
+                    "displayName": "Yauj 城市/地區名稱",
+                    "preset": "預設",
+                    "city": "城市名",
+                    "district": "地區名",
+                    "nameZh": "中文名",
+                    "nameEn": "英文名"
+                },
+                "yaujMapTitle": {
+                    "displayName": "Yauj 地圖標題",
+                    "nameZh": "中文名",
+                    "nameEn": "英文名",
+                    "date": "數據日期（YYYY-MM-DD）"
+                },
+                "yaujLegend": {
+                    "displayName": "Yauj 圖例"
                 }
             },
             "stations": {
@@ -566,6 +595,23 @@
                     "displayName": "杭州地鐵換乘車站",
                     "mirror": "圖標鏡像",
                     "scale": "站名橫向縮放"
+                },
+                "yauj": {
+                    "displayName": "Yauj 車站",
+                    "kind": "車站類型",
+                    "normal": "營運中",
+                    "construction": "興建中",
+                    "closed": "停運",
+                    "lightRailTerminus": "輕軌終點站",
+                    "lineColor": "終點站",
+                    "status": {
+                        "label": "狀態",
+                        "open": "營運中",
+                        "terminus": "終點站",
+                        "closed": "停運",
+                        "construction": "興建中"
+                    },
+                    "lightRailTerminusConstruction": "輕軌終點站·興建中（小圓點線）"
                 }
             },
             "lines": {
@@ -769,6 +815,36 @@
                     "moveLayerUp": "上移線層",
                     "moveLayerDown": "下移線層",
                     "removeLayer": "刪除線層"
+                },
+                "yaujMetro": {
+                    "displayName": "Yauj - 地鐵"
+                },
+                "yaujRail": {
+                    "displayName": "Yauj - 鐵路",
+                    "colorBackground": "鐵路底色",
+                    "colorForeground": "鐵路虛線顏色",
+                    "limitedService": "低速"
+                },
+                "yaujLightRail": {
+                    "displayName": "Yauj - 輕軌"
+                },
+                "yaujConstruction": {
+                    "displayName": "Yauj - 興建中（虛線）"
+                },
+                "yaujOsi": {
+                    "displayName": "Yauj - 站外轉乘（虛線）"
+                },
+                "yaujInterchange": {
+                    "displayName": "Yauj - 站內轉乘（實線）"
+                },
+                "yaujBorder": {
+                    "displayName": "Yauj - 城市邊界"
+                },
+                "yaujLimited": {
+                    "displayName": "Yauj - 限停/大站快線（虛線）"
+                },
+                "yaujLightRailConstruction": {
+                    "displayName": "Yauj - 輕軌興建中（點線）"
                 }
             },
             "edges": {},

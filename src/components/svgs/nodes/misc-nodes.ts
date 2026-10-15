@@ -12,6 +12,10 @@ import gzmtrLineBadge from './gzmtr-line-badge';
 import bjsubwayNumLineBadge from './bjsubway-num-line-badge';
 import bjsubwayTextLineBadge from './bjsubway-text-line-badge';
 import suzhouRTNumLineBadge from './suzhourt-num-line-badge';
+import yaujLineBadge from './yauj-line-badge';
+import yaujLegend from './yauj-legend';
+import yaujMapTitle from './yauj-map-title';
+import yaujPlaceLabel from './yauj-place-label';
 import berlinUBahnLineBadge from './berlin-u-bahn-line-badge';
 import berlinSBahnLineBadge from './berlin-s-bahn-line-badge';
 import chongqingRTNumLineBadge from './chongqingrt-num-line-badge';
@@ -44,6 +48,10 @@ const miscNodes = {
     [MiscNodeType.BjsubwayNumLineBadge]: bjsubwayNumLineBadge,
     [MiscNodeType.BjsubwayTextLineBadge]: bjsubwayTextLineBadge,
     [MiscNodeType.SuzhouRTNumLineBadge]: suzhouRTNumLineBadge,
+    [MiscNodeType.YaujLineBadge]: yaujLineBadge,
+    [MiscNodeType.YaujPlaceLabel]: yaujPlaceLabel,
+    [MiscNodeType.YaujMapTitle]: yaujMapTitle,
+    [MiscNodeType.YaujLegend]: yaujLegend,
     [MiscNodeType.BerlinSBahnLineBadge]: berlinSBahnLineBadge,
     [MiscNodeType.BerlinUBahnLineBadge]: berlinUBahnLineBadge,
     [MiscNodeType.ChongqingRTNumLineBadge]: chongqingRTNumLineBadge,

@@ -31,6 +31,8 @@ const legacySimplePathAvailableStyles: ReadonlySet<LineStyleType> = new Set([
     LineStyleType.River,
     LineStyleType.MTRPaidArea,
     LineStyleType.MTRUnpaidArea,
+    LineStyleType.YaujOsi,
+    LineStyleType.YaujInterchange,
     LineStyleType.MRTTapeOut,
 ]);
 
