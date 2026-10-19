@@ -15,17 +15,14 @@ import {
     StationType,
 } from '../../../constants/stations';
 import { getLangStyle, TextLanguage } from '../../../util/fonts';
-import {
-    NameLayout,
-    getPreciseNameOffsetsSelectState,
-    useDraggableStationName,
-} from '../../../util/use-draggable-station-name';
+import { NameLayout, useDraggableStationName } from '../../../util/use-draggable-station-name';
 import { ColorAttribute, ColorField } from '../../panels/details/color-field';
 import {
     InterchangeField,
     InterchangeInfo,
     StationAttributesWithInterchange,
 } from '../../panels/details/interchange-field';
+import { NameOffsetPad } from '../../panels/details/name-offset-pad';
 import { RotateField } from '../../panels/details/rotate-field';
 import { MultilineText, NAME_DY } from '../common/multiline-text';
 import { YAUJ_LIGHT_RAIL_COLOR } from '../../../constants/yauj-colors';
@@ -53,12 +50,16 @@ export type YaujStationKind =
 /**
  * Status of one interchange line, stored as the seventh element (index 6) of its `InterchangeInfo`.
  */
-export type YaujLineStatus = 'open' | 'terminus' | 'closed' | 'construction';
+export type YaujLineStatus = 'open' | 'terminus' | 'closed' | 'construction' | 'hidden';
 
 export const YAUJ_LINE_STATUSES: YaujLineStatus[] = ['open', 'terminus', 'closed', 'construction'];
 
+/**
+ * `hidden` is not in the dropdown. The open-only export uses it for a closed / under construction line: its slot
+ * still takes up room, so the other circles and the name stay where they were, but nothing is drawn for it.
+ */
 export const getLineStatus = (info: InterchangeInfo): YaujLineStatus =>
-    YAUJ_LINE_STATUSES.includes(info[6] as YaujLineStatus) ? (info[6] as YaujLineStatus) : 'open';
+    [...YAUJ_LINE_STATUSES, 'hidden'].includes(info[6]) ? (info[6] as YaujLineStatus) : 'open';
 
 const STATUS_LABELS: Record<'construction' | 'closed', [string, string]> = {
     construction: ['(施工封闭)', '(U/C)'],
@@ -126,7 +127,8 @@ export const YaujInterchangeGlyph = (props: { slots: { info: InterchangeInfo; st
                 .reverse()
                 .map(
                     ({ slot, i }) =>
-                        !isSolid(slot.status) && (
+                        !isSolid(slot.status) &&
+                        slot.status !== 'hidden' && (
                             <circle
                                 key={`dotted-${i}`}
                                 cx={positions[i]}
@@ -383,30 +385,6 @@ const YaujStationAttrsComponent = (props: AttrsProps<YaujStationAttributes>) => 
     const kind = attrs.kind ?? defaultYaujStationAttributes.kind;
     const isNormal = kind === 'normal';
 
-    const customLabel = t('panel.details.stations.common.custom');
-    const nameOffsetXSelect = getPreciseNameOffsetsSelectState({
-        attrs,
-        value: attrs.nameOffsetX,
-        options: {
-            left: t('panel.details.stations.common.left'),
-            middle: t('panel.details.stations.common.middle'),
-            right: t('panel.details.stations.common.right'),
-        },
-        customLabel,
-        disabledOptions: attrs.nameOffsetY === 'middle' ? ['middle'] : [],
-    });
-    const nameOffsetYSelect = getPreciseNameOffsetsSelectState({
-        attrs,
-        value: attrs.nameOffsetY,
-        options: {
-            top: t('panel.details.stations.common.top'),
-            middle: t('panel.details.stations.common.middle'),
-            bottom: t('panel.details.stations.common.bottom'),
-        },
-        customLabel,
-        disabledOptions: attrs.nameOffsetX === 'middle' ? ['middle'] : [],
-    });
-
     const fields: RmgFieldsField[] = [
         {
             type: 'select',
@@ -448,29 +426,20 @@ const YaujStationAttrsComponent = (props: AttrsProps<YaujStationAttributes>) => 
             minW: 'full',
         },
         {
-            type: 'select',
-            label: t('panel.details.stations.common.nameOffsetX'),
-            value: nameOffsetXSelect.value,
-            options: nameOffsetXSelect.options,
-            disabledOptions: nameOffsetXSelect.disabledOptions,
-            onChange: val => {
-                attrs.nameOffsetX = val as NameOffsetX;
-                delete attrs.preciseNameOffsets;
-                handleAttrsUpdate(id, attrs);
-            },
-            minW: 'full',
-        },
-        {
-            type: 'select',
-            label: t('panel.details.stations.common.nameOffsetY'),
-            value: nameOffsetYSelect.value,
-            options: nameOffsetYSelect.options,
-            disabledOptions: nameOffsetYSelect.disabledOptions,
-            onChange: val => {
-                attrs.nameOffsetY = val as NameOffsetY;
-                delete attrs.preciseNameOffsets;
-                handleAttrsUpdate(id, attrs);
-            },
+            type: 'custom',
+            label: '',
+            component: (
+                <NameOffsetPad
+                    // a dragged (custom) name position marks no side
+                    value={attrs.preciseNameOffsets ? undefined : { x: attrs.nameOffsetX, y: attrs.nameOffsetY }}
+                    onChange={({ x, y }) => {
+                        attrs.nameOffsetX = x;
+                        attrs.nameOffsetY = y;
+                        delete attrs.preciseNameOffsets;
+                        handleAttrsUpdate(id, attrs);
+                    }}
+                />
+            ),
             minW: 'full',
         },
     ];
@@ -483,7 +452,7 @@ const YaujStationAttrsComponent = (props: AttrsProps<YaujStationAttributes>) => 
         fields.push({
             type: 'custom',
             label: t('panel.details.stations.common.rotate'),
-            component: <RotateField type={StationType.Yauj} defaultAttributes={defaultYaujStationAttributes} />,
+            component: <RotateField type={StationType.Yauj} defaultAttributes={defaultYaujStationAttributes} pad />,
             minW: 'full',
         });
     }

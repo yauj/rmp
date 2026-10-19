@@ -4,6 +4,7 @@ import { StationAttributes, StationType } from '../../../constants/stations';
 import { useRootDispatch, useRootSelector } from '../../../redux';
 import { saveGraph } from '../../../redux/param/param-slice';
 import { setRefreshNodes } from '../../../redux/runtime/runtime-slice';
+import { RotatePad } from './rotate-pad';
 
 const DEFAULT_ROTATE_OPTIONS = {
     0: '0',
@@ -22,6 +23,8 @@ interface RotateFieldProps<T extends RotatableStationAttributes> {
     type: StationType;
     defaultAttributes: T;
     getNextAttributes?: (attributes: T) => T;
+    /** Pick the rotation with the pad of 8 buttons instead of the select (a map still uses the slider). */
+    pad?: boolean;
     rotateSelect?: {
         value: number | string;
         options: Record<string, string>;
@@ -30,7 +33,7 @@ interface RotateFieldProps<T extends RotatableStationAttributes> {
 }
 
 export const RotateField = <T extends RotatableStationAttributes>(props: RotateFieldProps<T>) => {
-    const { type, defaultAttributes, getNextAttributes, rotateSelect } = props;
+    const { type, defaultAttributes, getNextAttributes, rotateSelect, pad } = props;
     const dispatch = useRootDispatch();
     const { selected } = useRootSelector(state => state.runtime);
     const [selectedFirst] = selected;
@@ -89,6 +92,8 @@ export const RotateField = <T extends RotatableStationAttributes>(props: RotateF
             onChange={handlePreview}
             onChangeEnd={handleCommit}
         />
+    ) : pad ? (
+        <RotatePad value={rotate} onChange={handleCommit} />
     ) : (
         <RmgSelect
             defaultValue={rotateSelect?.value ?? rotate}

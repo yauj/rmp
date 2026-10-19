@@ -4,6 +4,8 @@ import { useRootSelector } from '../redux';
 import { makeRenderReadySVGElement, shouldForceRmpInfo, writeYaujSave } from './download';
 import { imageStoreIndexedDB } from './image-store-indexed-db';
 import { stringifyParam } from './save';
+import { makeOpenOnlyGraph } from './yauj-open-only';
+import { renderVideoFrameGeometry } from './video-export';
 
 const FILE_NAME = /^RailMapToolkit_(.+)_(\d{8})\.json$/i;
 const MAP_DATE_TEXT = /^\(?\s*(\d{4})-(\d{2})-(\d{2})\s*\)?$/;
@@ -79,10 +81,31 @@ export const useYaujExport = () => {
                 );
                 const svg = elem.outerHTML.replace(/&nbsp;/g, ' ').replace(/\p{Cc}/gu, '');
 
+                // The same map with only what is in service today (no .json: the full save stays the master).
+                const open = makeOpenOnlyGraph(graph);
+                const { elem: openElem } = await makeRenderReadySVGElement(
+                    open.graph,
+                    param.present.mapEnabled,
+                    false,
+                    false,
+                    languages,
+                    shouldForceRmpInfo(existsNodeTypes, RMP_EXPORT),
+                    2,
+                    clone => renderVideoFrameGeometry(open.graph, clone, param.present.mapEnabled)
+                );
+                const openSvg = openElem.outerHTML.replace(/&nbsp;/g, ' ').replace(/\p{Cc}/gu, '');
+
                 await writeYaujSave(`${base}.json`, stringifyParam(param, images));
                 await writeYaujSave(`${base}.svg`, svg);
+                await writeYaujSave(`${base}_open.svg`, openSvg);
                 setYaujLoadedName(`${base}.json`);
-                toast({ title: `Saved ${base}.json and .svg to yauj/saves`, status: 'success', duration: 4000 });
+                const s = open.stats;
+                toast({
+                    title: `Saved ${base}.json, .svg and _open.svg to yauj/saves`,
+                    description: `Open only: ${s.removedLines} lines and ${s.removedStations + s.convertedToNodes} stations removed`,
+                    status: 'success',
+                    duration: 6000,
+                });
             } catch (err) {
                 toast({ title: 'yauj export failed', description: String(err), status: 'error' });
             }

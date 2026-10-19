@@ -323,7 +323,8 @@
                     "date": "数据日期（YYYY-MM-DD）"
                 },
                 "yaujLegend": {
-                    "displayName": "Yauj 图例"
+                    "displayName": "Yauj 图例",
+                    "openOnly": "仅显示运营线路"
                 }
             },
             "stations": {
@@ -331,6 +332,7 @@
                     "nameZh": "中文名称",
                     "nameEn": "英文名称",
                     "nameJa": "日语名称",
+                    "nameOffset": "名称位置",
                     "nameOffsetX": "名称横向偏移",
                     "nameOffsetY": "名称纵向偏移",
                     "rotate": "车站旋转角度",
@@ -919,6 +921,11 @@
         "popoverHeader": "你正在浏览<1>{{environment}}</1>环境！",
         "popoverBody": "我们正在测试最新的RMP。如果你有任何建议，欢迎在 https://github.com/railmapgen/rmp/issues 上提出。",
         "search": "搜索车站",
+        "searchCoordinate": {
+            "label": "跳转到坐标",
+            "placeholder": "x, y  例如 325,-50",
+            "go": "前往"
+        },
         "edit": "编辑",
         "undo": "撤销",
         "redo": "重做",
@@ -1251,6 +1258,11 @@
                 "gridline": "显示网格参考线",
                 "snapline": "磁性吸附到参考线",
                 "predictNextNode": "当选择一个节点时预测下一个节点",
+                "predictNextLineSource": {
+                    "title": "预测线路的样式",
+                    "selected": "与所选节点的线路相同",
+                    "tool": "工具栏中最后选择的线路样式"
+                },
                 "autoChangeStationType": "自动切换基本车站与换乘车站",
                 "disableMapPerformanceOptimization": "禁用地图性能优化",
                 "mapPerformanceOptimizationProgress": "已优化：{{optimized}}/{{total}}",
@@ -1287,6 +1299,12 @@
                     "title": "缩放节点坐标",
                     "content": "将所有节点的x和y乘以以下值：",
                     "factor": "缩放因子"
+                },
+                "yaujChange": {
+                    "title": "Yauj：批量修改属性",
+                    "stationKind": "批量修改 Yauj 车站类型",
+                    "scopeAll": "应用于整张地图。展开某一项即表示应用该项。",
+                    "scopeSelected": "应用于所选对象。展开某一项即表示应用该项。"
                 },
                 "changeType": {
                     "title": "修改所有对象的属性",

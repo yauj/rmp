@@ -25,6 +25,8 @@ Customisations on this branch, all local to Jeremy's setup:
     `yauj/saves/`. Defaults: region from the last file opened (yauj import or the Open file
     picker); date from the map's own title (the yauj map title node, or a `(YYYY-MM-DD)` text node; today if none). The date is
     the map's data date, not the save date. The dialog warns if the file already exists (it is overwritten).
+    It also writes `RailMapToolkit_<Region>_<YYYYMMDD>_open.svg`: the same map showing only what is in service today
+    (no `.json`; the full save stays the master). See "Open-only export" below.
   - The existing Open/Download buttons are unchanged (`src/util/yauj-export.ts` holds the export logic).
 
 ## Purpose
@@ -148,7 +150,7 @@ Custom styles that exist only on this branch, for the same reason as `yauj-line-
 | Line | yauj-limited | dashed in the line colour, limited service / express overlay (was `mtr-race-days`) |
 | Line | yauj-border | city border, solid `#ebebeb` |
 | Station | yauj-station | "Station type" dropdown: In service (HK pill), Under construction, Closed, Terminus, Light rail terminus (small), Light rail terminus under construction (small, dotted) |
-| Node | yauj-legend | fixed legend of every line style, station type and badge tier, drawn with the real styles |
+| Node | yauj-legend | fixed legend of every line style, station type and badge tier, drawn with the real styles; "Open lines only" switch (used by the open-only export) hides the not-in-service rows |
 | Node | yauj-map-title | map title block: Chinese name (80), English name (50), date in brackets (40), black; the export reads the date from it |
 | Node | yauj-place-label | one node, Chinese + English linked, Preset = City (20/15) or District (15/10) |
 
@@ -172,6 +174,26 @@ Custom styles that exist only on this branch, for the same reason as `yauj-line-
 - Convert a stock-style save: `npm run yauj:styles -- yauj/saves/<save>.json` (script: `yauj/scripts/to-yauj-styles.mjs`).
   Writes `<save>_yauj-styles.json` beside it, never touches the input, and lists stations whose status disagrees with the
   lines they touch.
+
+### Open-only export (`_open.svg`)
+`yauj export` also renders a copy of the map with only the network in service. Logic is `makeOpenOnlyGraph` in
+`src/util/yauj-open-only.ts` (tests beside it); it works on a clone, so the map being edited and the saved `.json` are
+untouched. The SVG goes through `renderVideoFrameGeometry` as the export's render hook. Rules:
+- `yauj-construction` and `yauj-light-rail-construction` lines are deleted.
+- Stations of kind Under construction / Closed / Light rail terminus under construction, and interchanges whose lines
+  are all Closed / Under construction, become invisible `virtual` nodes at the same spot (open lines still run through
+  them, also mid-line). Interchange connectors (`yauj-osi`, `yauj-interchange`) touching them are dropped.
+- Nodes and stations that had lines and now have none are deleted.
+- Interchanges with an open line: each Closed / Under construction line gets status `hidden` (not in the dropdown; the
+  slot keeps its room so the pill and name do not move, nothing is drawn). Exception: a Closed / Under construction slot
+  between two open ones stays visible (out-of-station interchange, e.g. Pazhou).
+- Line badges, place labels, the title and facilities are not touched.
+- Every `yauj-legend` gets `openOnly: true`: the Under construction and Light rail under construction lines, the
+  Under construction / Closed station rows, the interchange-with-a-closed-line row and the light rail terminus under
+  construction row are hidden.
+- Not handled: facility icons next to a removed station stay; image nodes are missing from the open SVG.
+- The Jing-Jin-Ji / Yangtze River Delta saves must be converted with `npm run yauj:styles` first; stock-style saves have
+  nothing for it to filter.
 
 Label each item with its mode (metro / HSR / intercity / mainline-suburban / tram-light-rail) and
 status (in service, dashed, suspended) so Jeremy knows which style and colour to use.

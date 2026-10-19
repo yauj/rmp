@@ -13,6 +13,7 @@ import {
     setSelected,
 } from '../../../redux/runtime/runtime-slice';
 import { ChangeTypeModal, FilterType } from '../../page-header/procedures/change-type-modal';
+import { YaujChangeAttributeModal } from '../../page-header/procedures/yauj-change-attribute-modal';
 
 export default function InfoMultipleSection() {
     const { t } = useTranslation();
@@ -111,6 +112,7 @@ export default function InfoMultipleSection() {
     }, [selected]);
 
     const [isOpenChangeModal, setIsOpenChangeModal] = React.useState(false);
+    const [isOpenYaujChangeModal, setIsOpenYaujChangeModal] = React.useState(false);
 
     const filteredSelected = React.useMemo(() => {
         return [...selected]
@@ -167,6 +169,9 @@ export default function InfoMultipleSection() {
                                 </Badge>
                             </Tooltip>
                         </Button>
+                        <Button width="100%" size="sm" onClick={() => setIsOpenYaujChangeModal(true)}>
+                            {t('header.settings.procedures.yaujChange.title')}
+                        </Button>
                         <Divider />
                     </>
                 )}
@@ -198,6 +203,12 @@ export default function InfoMultipleSection() {
             <ChangeTypeModal
                 isOpen={isOpenChangeModal}
                 onClose={() => setIsOpenChangeModal(false)}
+                isSelect={true}
+                filter={filter}
+            />
+            <YaujChangeAttributeModal
+                isOpen={isOpenYaujChangeModal}
+                onClose={() => setIsOpenYaujChangeModal(false)}
                 isSelect={true}
                 filter={filter}
             />

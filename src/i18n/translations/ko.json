@@ -323,7 +323,8 @@
                     "date": "Data date (YYYY-MM-DD)"
                 },
                 "yaujLegend": {
-                    "displayName": "Yauj legend"
+                    "displayName": "Yauj legend",
+                    "openOnly": "Open lines only"
                 }
             },
             "stations": {
@@ -331,6 +332,7 @@
                     "nameZh": "한자 명칭",
                     "nameEn": "영문 명칭",
                     "nameJa": "일본 명칭",
+                    "nameOffset": "이름 위치",
                     "nameOffsetX": "명칭 가로 이동",
                     "nameOffsetY": "명칭 세로 이동",
                     "rotate": "역회전각도",
@@ -919,6 +921,11 @@
         "popoverHeader": "당신은 환경을<1>{{environment}}</1>탐색하고 있습니다",
         "popoverBody": "최신 RMP를 테스트하고 있습니다.제안 사항이 있으시면 언제든지 https://github.com/railmapgen/rmp/issues에 제출해 주십시오.",
         "search": "방송국 검색",
+        "searchCoordinate": {
+            "label": "좌표로 이동",
+            "placeholder": "x, y  예: 325,-50",
+            "go": "이동"
+        },
         "edit": "편집",
         "undo": "실행 취소",
         "redo": "다시 실행",
@@ -1251,6 +1258,11 @@
                 "gridline": "격자 가이드 라인 표시",
                 "snapline": "가이드 라인과 포인트에 자동 스냅",
                 "predictNextNode": "노드를 선택했을 때 다음 노드를 예측하기",
+                "predictNextLineSource": {
+                    "title": "예측하는 선의 스타일",
+                    "selected": "선택한 노드의 선과 동일",
+                    "tool": "도구 패널에서 마지막으로 고른 선 스타일"
+                },
                 "autoChangeStationType": "기본 역과 환승 역을 자동으로 전환",
                 "disableMapPerformanceOptimization": "지도 성능 최적화 비활성화",
                 "mapPerformanceOptimizationProgress": "최적화됨: {{optimized}}/{{total}}",
@@ -1287,6 +1299,12 @@
                     "title": "스케일 노드의 좌표",
                     "content": "모든 노드의 x 및 y에 다음 값을 곱하:",
                     "factor": "스케일 팩터"
+                },
+                "yaujChange": {
+                    "title": "Yauj: 속성 일괄 변경",
+                    "stationKind": "Yauj 역 유형 일괄 변경",
+                    "scopeAll": "지도 전체에 적용됩니다. 적용할 항목을 펼치세요.",
+                    "scopeSelected": "선택한 개체에 적용됩니다. 적용할 항목을 펼치세요."
                 },
                 "changeType": {
                     "title": "모든 객체의 속성 변경",

@@ -325,7 +325,8 @@
                     "date": "Data date (YYYY-MM-DD)"
                 },
                 "yaujLegend": {
-                    "displayName": "Yauj legend"
+                    "displayName": "Yauj legend",
+                    "openOnly": "Open lines only"
                 }
             },
             "stations": {
@@ -333,6 +334,7 @@
                     "nameZh": "中国語の駅名",
                     "nameEn": "英語の駅名",
                     "nameJa": "日本語の駅名",
+                    "nameOffset": "名前の位置",
                     "nameOffsetX": "駅名補正値X",
                     "nameOffsetY": "駅名補正値Y",
                     "rotate": "アイコンの回転",
@@ -922,6 +924,11 @@
         "popoverHeader": "<1>{{environment}}</1> 環境です！",
         "popoverBody": "現在、最新のRMPをテストしています。ご意見がありましたら、https://github.com/railmapgen/rmp/issues で提案してください",
         "search": "駅を探す",
+        "searchCoordinate": {
+            "label": "座標へ移動",
+            "placeholder": "x, y  例: 325,-50",
+            "go": "移動"
+        },
         "edit": "編集",
         "undo": "元に戻す",
         "redo": "やり直す",
@@ -1254,6 +1261,11 @@
                 "gridline": "グリッドガイドラインを表示",
                 "snapline": "ガイドラインおよびポイントに自動的にスナップする",
                 "predictNextNode": "節点を選択したときに次の節点を予測する",
+                "predictNextLineSource": {
+                    "title": "予測する線のスタイル",
+                    "selected": "選択した節点の線と同じ",
+                    "tool": "ツールパネルで最後に選んだ線のスタイル"
+                },
                 "autoChangeStationType": "基本駅と乗換駅を自動的に切り替える",
                 "disableMapPerformanceOptimization": "地図のパフォーマンス最適化を無効にする",
                 "mapPerformanceOptimizationProgress": "最適化済み：{{optimized}}/{{total}}",
@@ -1290,6 +1302,12 @@
                     "title": "節点の座標をスケーリング",
                     "content": "すべての節点のX座標とY座標に次の値を乗算する：",
                     "factor": "スケールファクター"
+                },
+                "yaujChange": {
+                    "title": "Yauj：属性を一括変更",
+                    "stationKind": "Yauj 駅の種類を一括変更",
+                    "scopeAll": "マップ全体に適用します。適用する項目を開いてください。",
+                    "scopeSelected": "選択したオブジェクトに適用します。適用する項目を開いてください。"
                 },
                 "changeType": {
                     "title": "すべてのオブジェクトの属性を変更する",

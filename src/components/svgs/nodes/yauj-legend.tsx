@@ -1,6 +1,8 @@
 import { MonoColour } from '@railmapgen/rmg-palette-resources';
+import { RmgFields, RmgFieldsField } from '@railmapgen/rmg-components';
 import React from 'react';
-import { CityCode, Theme } from '../../../constants/constants';
+import { useTranslation } from 'react-i18next';
+import { AttrsProps, CityCode, Theme } from '../../../constants/constants';
 import { LinePathType, LineStyleComponentProps, LineStyleType } from '../../../constants/lines';
 import { Node, NodeComponentProps } from '../../../constants/nodes';
 import { YAUJ_LIGHT_RAIL_COLOR, YAUJ_METRO_COLOR } from '../../../constants/yauj-colors';
@@ -42,6 +44,8 @@ interface LineRow {
     zh: string;
     en: string;
     attrs?: Record<string, unknown>;
+    /** Not in service, so left out of the open-only legend. */
+    notOpen?: boolean;
 }
 
 const LINE_ROWS: LineRow[] = [
@@ -54,8 +58,13 @@ const LINE_ROWS: LineRow[] = [
         attrs: { limitedService: true },
     },
     { style: LineStyleType.YaujLightRail, zh: '轻轨 / 有轨电车', en: 'Light rail / tram' },
-    { style: LineStyleType.YaujConstruction, zh: '在建', en: 'Under construction' },
-    { style: LineStyleType.YaujLightRailConstruction, zh: '轻轨在建', en: 'Light rail under construction' },
+    { style: LineStyleType.YaujConstruction, zh: '在建', en: 'Under construction', notOpen: true },
+    {
+        style: LineStyleType.YaujLightRailConstruction,
+        zh: '轻轨在建',
+        en: 'Light rail under construction',
+        notOpen: true,
+    },
     { style: LineStyleType.YaujLimited, zh: '限停 / 大站快线', en: 'Limited service' },
     { style: LineStyleType.YaujOsi, zh: '站外换乘', en: 'Out-of-station interchange' },
     { style: LineStyleType.YaujInterchange, zh: '站内换乘', en: 'In-station interchange' },
@@ -90,6 +99,7 @@ interface StationRow {
     zh: string;
     en: string;
     sample: React.ReactNode;
+    notOpen?: boolean;
 }
 
 const StatusLabel = (props: { zh: string; en: string }) => (
@@ -127,6 +137,7 @@ const STATION_ROWS: StationRow[] = [
     {
         zh: '在建车站',
         en: 'Under construction',
+        notOpen: true,
         sample: (
             <>
                 <DottedCircle />
@@ -137,6 +148,7 @@ const STATION_ROWS: StationRow[] = [
     {
         zh: '停运车站',
         en: 'Closed',
+        notOpen: true,
         sample: (
             <>
                 <DottedCircle />
@@ -147,6 +159,7 @@ const STATION_ROWS: StationRow[] = [
     {
         zh: '换乘站，其中一线在建 / 停运',
         en: 'Interchange with an under-construction / closed line',
+        notOpen: true,
         sample: <YaujInterchangeGlyph slots={[slot(RED, 'open'), slot(GREEN, 'construction')]} />,
     },
     {
@@ -162,6 +175,7 @@ const STATION_ROWS: StationRow[] = [
     {
         zh: '轻轨终点站（在建）',
         en: 'Light rail terminus, under construction',
+        notOpen: true,
         sample: (
             <circle r={2.5} fill="white" stroke={YAUJ_LIGHT_RAIL_COLOR[2]} strokeWidth=".8" strokeDasharray="1 1" />
         ),
@@ -213,7 +227,10 @@ const LineSample = (props: { row: LineRow; y: number }) => {
 
 const YaujLegend = (props: NodeComponentProps<YaujLegendAttributes>) => {
     const { ensureFont } = useSvgRenderContext();
-    const { id, handlePointerDown, handlePointerMove, handlePointerUp } = props;
+    const { id, attrs, handlePointerDown, handlePointerMove, handlePointerUp } = props;
+    const openOnly = attrs?.openOnly ?? false;
+    const lineRows = openOnly ? LINE_ROWS.filter(row => !row.notOpen) : LINE_ROWS;
+    const stationRows = openOnly ? STATION_ROWS.filter(row => !row.notOpen) : STATION_ROWS;
 
     React.useEffect(() => {
         ensureFont(TextLanguage.zh);
@@ -254,13 +271,13 @@ const YaujLegend = (props: NodeComponentProps<YaujLegendAttributes>) => {
             </g>
 
             <Heading x={0} zh="线路" en="Lines" />
-            {LINE_ROWS.map((row, i) => (
+            {lineRows.map((row, i) => (
                 <LineSample key={`${row.style}-${i}`} row={row} y={rowY(i)} />
             ))}
 
             <g transform={`translate(${COLUMN_WIDTH}, 0)`}>
                 <Heading x={0} zh="车站" en="Stations" />
-                {STATION_ROWS.map((row, i) => (
+                {stationRows.map((row, i) => (
                     <g key={row.en} transform={`translate(0, ${rowY(i)})`}>
                         <g transform="translate(14, 0)">{row.sample}</g>
                         <Label zh={row.zh} en={row.en} />
@@ -302,11 +319,36 @@ const YaujLegend = (props: NodeComponentProps<YaujLegendAttributes>) => {
 };
 
 /**
- * YaujLegend has no attributes.
+ * YaujLegend specific props. `openOnly` leaves out the line and station styles that are not in service; the open-only
+ * export switches it on. The out-of-station interchange row stays,
+ * because that circle stays on the open-only map.
  */
-export type YaujLegendAttributes = Record<string, never>;
+export interface YaujLegendAttributes {
+    openOnly?: boolean;
+}
 
-const defaultYaujLegendAttributes: YaujLegendAttributes = {};
+const defaultYaujLegendAttributes: YaujLegendAttributes = { openOnly: false };
+
+const YaujLegendAttrsComponent = (props: AttrsProps<YaujLegendAttributes>) => {
+    const { id, attrs, handleAttrsUpdate } = props;
+    const { t } = useTranslation();
+
+    const fields: RmgFieldsField[] = [
+        {
+            type: 'switch',
+            label: t('panel.details.nodes.yaujLegend.openOnly'),
+            oneLine: true,
+            isChecked: attrs.openOnly ?? false,
+            onChange: val => {
+                attrs.openOnly = val;
+                handleAttrsUpdate(id, attrs);
+            },
+            minW: 'full',
+        },
+    ];
+
+    return <RmgFields fields={fields} />;
+};
 
 const yaujLegendIcon = (
     <svg viewBox="0 0 24 24" height={40} width={40} focusable={false}>
@@ -324,7 +366,7 @@ const yaujLegend: Node<YaujLegendAttributes> = {
     component: YaujLegend,
     icon: yaujLegendIcon,
     defaultAttrs: defaultYaujLegendAttributes,
-    attrsComponent: () => undefined,
+    attrsComponent: YaujLegendAttrsComponent,
     metadata: {
         displayName: 'panel.details.nodes.yaujLegend.displayName',
         tags: [],

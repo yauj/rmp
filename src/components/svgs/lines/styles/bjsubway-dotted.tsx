@@ -13,8 +13,22 @@ import {
 } from '../../../../constants/lines';
 import { buildClosedBezierChainPathD, buildSymmetricOutlineSideChains } from '../../../../util/bezier-outline-sides';
 import { getOpenPathPrimitives } from '../../../../util/open-path-primitives';
+import { Path } from '../../../../constants/path';
 import { isOpenPath } from '../../../../util/path';
 import { ColorAttribute, ColorField } from '../../../panels/details/color-field';
+
+/**
+ * The hollow outline the dashes are clipped to. The clip path element carries `data-dotted-clip` so that dragging a node
+ * (which redraws lines straight in the DOM, see imperative-dom) can rebuild it instead of copying the centre line into it.
+ */
+export const getDottedClipPathD = (path: Path): string => {
+    if (!isOpenPath(path)) return '';
+    const primitives = getOpenPathPrimitives(path);
+    const outer = buildSymmetricOutlineSideChains(primitives, LINE_WIDTH / 2);
+    const inner = buildSymmetricOutlineSideChains(primitives, 1.7);
+    if (!outer.left.length || !inner.left.length) return '';
+    return `${buildClosedBezierChainPathD(outer.left, outer.right)} ${buildClosedBezierChainPathD(inner.left, inner.right)}`;
+};
 
 const BjsubwayDotted = (props: LineStyleComponentProps<BjsubwayDottedAttributes>) => {
     const { id, path, styleAttrs, newLine, handlePointerDown } = props;
@@ -24,14 +38,7 @@ const BjsubwayDotted = (props: LineStyleComponentProps<BjsubwayDottedAttributes>
     // Reuse Shinkansen's reduced Bezier outlines, so inflected curves also remain safe to offset.
     // Clip the original dashes to a hollow vector outline without rasterizing a mask for every edge.
     // Graph refreshes can recreate an identical Path; cache by geometry so unchanged edges stay cheap.
-    const clipPathD = React.useMemo(() => {
-        if (!isOpenPath(path)) return '';
-        const primitives = getOpenPathPrimitives(path);
-        const outer = buildSymmetricOutlineSideChains(primitives, LINE_WIDTH / 2);
-        const inner = buildSymmetricOutlineSideChains(primitives, 1.7);
-        if (!outer.left.length || !inner.left.length) return '';
-        return `${buildClosedBezierChainPathD(outer.left, outer.right)} ${buildClosedBezierChainPathD(inner.left, inner.right)}`;
-    }, [path.kind, path.d]);
+    const clipPathD = React.useMemo(() => getDottedClipPathD(path), [path.kind, path.d]);
 
     const onPointerDown = React.useCallback(
         (e: React.PointerEvent<SVGElement>) => handlePointerDown(id, e),
@@ -54,7 +61,7 @@ const BjsubwayDotted = (props: LineStyleComponentProps<BjsubwayDottedAttributes>
             />
             <defs>
                 <clipPath id={clipId} clipPathUnits="userSpaceOnUse">
-                    <path d={clipPathD} clipRule="evenodd" />
+                    <path d={clipPathD} clipRule="evenodd" data-dotted-clip="" />
                 </clipPath>
             </defs>
         </g>

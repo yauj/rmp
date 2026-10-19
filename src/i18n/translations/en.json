@@ -323,7 +323,8 @@
                     "date": "Data date (YYYY-MM-DD)"
                 },
                 "yaujLegend": {
-                    "displayName": "Yauj legend"
+                    "displayName": "Yauj legend",
+                    "openOnly": "Open lines only"
                 }
             },
             "stations": {
@@ -331,6 +332,7 @@
                     "nameZh": "Names in Chinese",
                     "nameEn": "Names in English",
                     "nameJa": "Names in Japanese",
+                    "nameOffset": "Name offset",
                     "nameOffsetX": "Names offset X",
                     "nameOffsetY": "Names offset Y",
                     "rotate": "Icon rotation",
@@ -920,6 +922,11 @@
         "popoverHeader": "You're on <1>{{environment}}</1> environment!",
         "popoverBody": "We are currently testing the latest RMP. If you have any suggestions, feel free to raise at https://github.com/railmapgen/rmp/issues",
         "search": "Search stations",
+        "searchCoordinate": {
+            "label": "Go to coordinate",
+            "placeholder": "x, y  e.g. 325,-50",
+            "go": "Go"
+        },
         "edit": "Edit",
         "undo": "Undo",
         "redo": "Redo",
@@ -1252,6 +1259,11 @@
                 "gridline": "Show grid guide lines",
                 "snapline": "Auto snapping to the guide lines and points",
                 "predictNextNode": "Predict next nodes when a node is selected",
+                "predictNextLineSource": {
+                    "title": "Style of predicted lines",
+                    "selected": "Same as the selected node's line",
+                    "tool": "Last line style picked in the tools panel"
+                },
                 "autoChangeStationType": "Automatically switch between basic and interchange station",
                 "disableMapPerformanceOptimization": "Disable map performance optimization",
                 "mapPerformanceOptimizationProgress": "Optimized: {{optimized}}/{{total}}",
@@ -1288,6 +1300,12 @@
                     "title": "Scale nodes' coordinates",
                     "content": "Multiply the following value to all nodes' x and y:",
                     "factor": "Scale factor"
+                },
+                "yaujChange": {
+                    "title": "Yauj: change attributes in batch",
+                    "stationKind": "Change Yauj station type in batch",
+                    "scopeAll": "Applies to the whole map. Open a section to include it.",
+                    "scopeSelected": "Applies to the selected objects. Open a section to include it."
                 },
                 "changeType": {
                     "title": "Change all objects' attributes",

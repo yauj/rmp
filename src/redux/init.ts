@@ -14,6 +14,7 @@ import {
     setDisableWarningChangeType,
     setGridLines,
     setPredictNextNode,
+    setPredictNextLineSource,
     setRandomStationsNames,
     setShowOnlyFavorites,
     setSnapLines,
@@ -63,6 +64,11 @@ export const initStore = async (store: RootStore) => {
         if ('snapLines' in appState.preference) store.dispatch(setSnapLines(appState.preference.snapLines));
         if ('predictNextNode' in appState.preference)
             store.dispatch(setPredictNextNode(appState.preference.predictNextNode));
+        if (
+            appState.preference.predictNextLineSource === 'selected' ||
+            appState.preference.predictNextLineSource === 'tool'
+        )
+            store.dispatch(setPredictNextLineSource(appState.preference.predictNextLineSource));
         if ('autoChangeStationType' in appState.preference)
             store.dispatch(setAutoChangeStationType(appState.preference.autoChangeStationType));
         if ('disableMapPerformanceOptimization' in appState.preference)

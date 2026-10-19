@@ -2,7 +2,7 @@ import rmgRuntime from '@railmapgen/rmg-runtime';
 import { nanoid } from 'nanoid';
 import React from 'react';
 import { EdgeAttributes, Events, LineId, NodeAttributes, NodeId, NodeType, Theme } from '../constants/constants';
-import { LinePathType, LineStyleType } from '../constants/lines';
+import { LinePathType, LineStyleComponentProps } from '../constants/lines';
 import { MiscNodeType } from '../constants/nodes';
 import { ExternalStationAttributes, STATION_TYPE_VALUES, StationAttributes, StationType } from '../constants/stations';
 import { useRootDispatch, useRootSelector } from '../redux';
@@ -16,26 +16,32 @@ import {
 } from '../redux/runtime/runtime-slice';
 import { getMousePosition } from '../util/helpers';
 import { supportsParallelLinePath } from '../util/parallel';
+import {
+    getLastLineMirror,
+    getPredictedLine,
+    getYaujStationForLine,
+    MirroredLine,
+    PredictedLine,
+} from '../util/predict-next-line';
 import { useMakeStationName } from '../util/random-station-names';
 import { AttributesWithColor, dynamicColorInjection } from './panels/details/color-field';
-import { normalizeEdgeAttributes } from './svgs/lines/lines';
+import { lineStyles, normalizeEdgeAttributes } from './svgs/lines/lines';
 import bezierPath from './svgs/lines/paths/bezier';
 import { initializeBezierEndpointOffsets } from './svgs/lines/paths/bezier-endpoint';
 import diagonalPath from './svgs/lines/paths/diagonal';
-import singleColor from './svgs/lines/styles/single-color';
 import miscNodes from './svgs/nodes/misc-nodes';
 import virtual from './svgs/nodes/virtual';
 import stations from './svgs/stations/stations';
 
 const VirtualNodeComponent = virtual.component;
-const SingleColorComponent = singleColor.component;
 const OFFSET = 10;
 type PredictionPathType = LinePathType.Diagonal | LinePathType.Bezier;
 
 const makePredictionEdgeAttrs = (
     pathType: PredictionPathType,
     startFrom: 'from' | 'to',
-    color: Theme
+    line: PredictedLine,
+    diagonal?: MirroredLine['diagonal']
 ): EdgeAttributes =>
     ({
         visible: true,
@@ -43,13 +49,28 @@ const makePredictionEdgeAttrs = (
         type: pathType,
         [pathType]:
             pathType === LinePathType.Diagonal
-                ? { ...structuredClone(diagonalPath.defaultAttrs), startFrom }
+                ? { ...structuredClone(diagonalPath.defaultAttrs), startFrom, ...diagonal }
                 : structuredClone(bezierPath.defaultAttrs),
-        style: LineStyleType.SingleColor,
-        [LineStyleType.SingleColor]: { color },
+        style: line.style,
+        [line.style]: structuredClone(line.attrs),
         reconcileId: '',
         parallelIndex: -1,
     }) as EdgeAttributes;
+
+/** A yauj station follows the line that leads to it: in service, under construction or light rail terminus. */
+const followLine = (stationType: StationType, attrs: object, line: PredictedLine) => {
+    if (stationType !== StationType.Yauj) return;
+    const station = getYaujStationForLine(line);
+    if (station) Object.assign(attrs, structuredClone(station));
+};
+
+/** Resets the interchange list of copied station attributes to what a new station starts with. */
+const clearInterchanges = (stationType: StationType, attrs: object) => {
+    if (!('transfer' in attrs)) return;
+    (attrs as { transfer: unknown }).transfer = structuredClone(
+        (stations[stationType].defaultAttrs as { transfer?: unknown }).transfer ?? [[]]
+    );
+};
 
 const PredictNextNode = () => {
     const dispatch = useRootDispatch();
@@ -61,15 +82,17 @@ const PredictNextNode = () => {
     const { activeSubscriptions } = useRootSelector(state => state.account);
     const {
         telemetry: { project: isAllowProjectTelemetry },
-        preference: { autoParallel, randomStationsNames },
+        preference: { autoParallel, randomStationsNames, predictNextLineSource },
     } = useRootSelector(state => state.app);
     const {
         selected,
         theme: runtimeTheme,
         count: { mostFrequentStationType },
         lastTool,
+        lastLineStyle,
     } = useRootSelector(state => state.runtime);
     const mapEnabled = useRootSelector(state => state.param.present.mapEnabled);
+    const isSubscriber = activeSubscriptions.RMP_CLOUD;
     const predictionPathType: PredictionPathType = mapEnabled ? LinePathType.Bezier : LinePathType.Diagonal;
     const makeStationName = useMakeStationName();
 
@@ -107,14 +130,30 @@ const PredictNextNode = () => {
         y: curPos.y + deltaPos.y,
     };
     const sameSign = Math.sign(deltaPos.x) === Math.sign(deltaPos.y);
-    const nextPos1 = {
-        x: nextPos.x - OFFSET,
-        y: nextPos.y + OFFSET * (sameSign ? 1 : -1),
-    };
-    const nextPos2 = {
+    // The station continues the last line: same distance, same direction and, for a diagonal line, same shape.
+    // If that spot is taken by a node the selected node connects to, it moves to the furthest free direction.
+    // The virtual node keeps its own curved placement beside it, unless the station had to turn away.
+    const mirror = getLastLineMirror(window.graph, selectedID);
+    const nextPos1 = mirror?.turned
+        ? { x: mirror.x - OFFSET, y: mirror.y + OFFSET * (sameSign ? 1 : -1) }
+        : {
+              x: nextPos.x - OFFSET,
+              y: nextPos.y + OFFSET * (sameSign ? 1 : -1),
+          };
+    const nextPos2 = mirror ?? {
         x: nextPos.x + OFFSET,
         y: nextPos.y + OFFSET * (sameSign ? -1 : 1),
     };
+
+    const predictedLine = getPredictedLine(window.graph, selectedID, {
+        source: predictNextLineSource,
+        toolStyle: lastLineStyle,
+        theme: runtimeTheme,
+        pathType: predictionPathType,
+        mapEnabled,
+        isSubscriber,
+    });
+    const LineStyleComponent = lineStyles[predictedLine.style].component as React.FC<LineStyleComponentProps<any>>;
 
     const isSelectedStation = selectedID.startsWith('stn_');
     const stationType = isSelectedStation
@@ -129,42 +168,21 @@ const PredictNextNode = () => {
         x: nextPos2.x,
         y: nextPos2.y,
         type: stationType,
-        [stationType]: stations[stationType].defaultAttrs,
+        [stationType]: structuredClone(stations[stationType].defaultAttrs),
     };
+    followLine(stationType, stationAttrs[stationType] as object, predictedLine);
     if (isSelectedStation) {
         const selectedStationAttrs = structuredClone(
             window.graph.getNodeAttribute(selectedID, stationType)
         ) as NonNullable<ExternalStationAttributes[typeof stationType]>;
+        clearInterchanges(stationType, selectedStationAttrs);
+        followLine(stationType, selectedStationAttrs, predictedLine);
         Object.assign(stationAttrs, { [stationType]: selectedStationAttrs } as Pick<
             ExternalStationAttributes,
             typeof stationType
         >);
     }
 
-    const allThemes = window.graph.reduceEdges(
-        selectedID,
-        (acc, edge) => {
-            const attr = window.graph.getEdgeAttributes(edge);
-            const { style } = attr;
-            if (style === LineStyleType.SingleColor) {
-                const theme = JSON.stringify(attr[style]!.color);
-                if (theme in acc) {
-                    acc[theme] += 1;
-                } else {
-                    acc[theme] = 1;
-                }
-            }
-            return acc;
-        },
-        {} as Record<string, number>
-    );
-    const mostFrequentTheme =
-        Object.entries(allThemes)
-            .filter(([_, count]) => count % 2 !== 0) // Filter themes that appear an odd number of times
-            .reduce((max, [theme, count]) => (count > max.count ? { color: JSON.parse(theme) as Theme, count } : max), {
-                color: null as Theme | null,
-                count: 0,
-            }).color ?? runtimeTheme;
     const switchStartFrom =
         deltaPos.x > 0
             ? deltaPos.x > Math.abs(deltaPos.y)
@@ -182,7 +200,7 @@ const PredictNextNode = () => {
             window.graph,
             selectedID as NodeId,
             undefined,
-            makePredictionEdgeAttrs(predictionPathType, path1StartFrom, mostFrequentTheme)
+            makePredictionEdgeAttrs(predictionPathType, path1StartFrom, predictedLine)
         );
         path1 = bezierPath.generatePath(curPos.x, nextPos1.x, curPos.y, nextPos1.y, bezierPreviewAttrs);
         path2 = bezierPath.generatePath(curPos.x, nextPos2.x, curPos.y, nextPos2.y, bezierPreviewAttrs);
@@ -194,6 +212,7 @@ const PredictNextNode = () => {
         path2 = diagonalPath.generatePath(curPos.x, nextPos2.x, curPos.y, nextPos2.y, {
             ...structuredClone(diagonalPath.defaultAttrs),
             startFrom: path2StartFrom,
+            ...mirror?.diagonal,
         });
     }
 
@@ -212,6 +231,11 @@ const PredictNextNode = () => {
                 ? window.graph.getNodeAttribute(selectedID, nodeType as StationType)
                 : { ...stations, ...miscNodes }[nodeType].defaultAttrs
         );
+        // the new station is not an interchange, whatever the selected one is
+        if (isStation && nodeType === window.graph.getNodeAttribute(selectedID, 'type')) {
+            clearInterchanges(nodeType as StationType, attr as object);
+        }
+        if (isStation) followLine(nodeType as StationType, attr as object, predictedLine);
         // inject runtime color if registered in dynamicColorInjection
         if (dynamicColorInjection.has(nodeType)) (attr as AttributesWithColor).color = runtimeTheme;
         // Override station names for non-default creation modes while keeping cloned names in default mode.
@@ -236,7 +260,12 @@ const PredictNextNode = () => {
         const [source, target] = [selectedID as NodeId, nextID];
         const parallelIndex = autoParallel && supportsParallelLinePath(pathType) ? 0 : -1;
         const startFrom = isStation ? path2StartFrom : path1StartFrom;
-        const edgeAttrs = makePredictionEdgeAttrs(pathType, startFrom, mostFrequentTheme);
+        const edgeAttrs = makePredictionEdgeAttrs(
+            pathType,
+            startFrom,
+            predictedLine,
+            isStation ? mirror?.diagonal : undefined
+        );
         edgeAttrs.parallelIndex = parallelIndex;
         window.graph.addDirectedEdgeWithKey(newLineId, source, target, edgeAttrs);
         normalizeEdgeAttributes(window.graph, [newLineId], 'created');
@@ -249,19 +278,19 @@ const PredictNextNode = () => {
 
     return (
         <g id="prediction" opacity="0.5" className="removeMe">
-            <SingleColorComponent
+            <LineStyleComponent
                 id="line_prediction_1"
                 type={predictionPathType}
                 path={path1}
-                styleAttrs={{ color: mostFrequentTheme }}
+                styleAttrs={predictedLine.attrs}
                 newLine
                 handlePointerDown={() => {}}
             />
-            <SingleColorComponent
+            <LineStyleComponent
                 id="line_prediction_2"
                 type={predictionPathType}
                 path={path2}
-                styleAttrs={{ color: mostFrequentTheme }}
+                styleAttrs={predictedLine.attrs}
                 newLine
                 handlePointerDown={() => {}}
             />

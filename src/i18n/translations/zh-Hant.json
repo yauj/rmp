@@ -323,7 +323,8 @@
                     "date": "數據日期（YYYY-MM-DD）"
                 },
                 "yaujLegend": {
-                    "displayName": "Yauj 圖例"
+                    "displayName": "Yauj 圖例",
+                    "openOnly": "僅顯示營運線路"
                 }
             },
             "stations": {
@@ -331,6 +332,7 @@
                     "nameZh": "中文名稱",
                     "nameEn": "英文名稱",
                     "nameJa": "日語名稱",
+                    "nameOffset": "名稱位置",
                     "nameOffsetX": "名稱橫向偏移",
                     "nameOffsetY": "名稱縱向偏移",
                     "rotate": "車站旋轉角度",
@@ -919,6 +921,11 @@
         "popoverHeader": "你正在瀏覽<1>{{environment}}</1>環境！",
         "popoverBody": "我們正在測試最新的RMP。如果妳有任何建議，歡迎在 https://github.com/railmapgen/rmp/issues 上提出。",
         "search": "搜尋車站",
+        "searchCoordinate": {
+            "label": "跳轉到座標",
+            "placeholder": "x, y  例如 325,-50",
+            "go": "前往"
+        },
         "edit": "編輯",
         "undo": "撤銷",
         "redo": "重做",
@@ -1251,6 +1258,11 @@
                 "gridline": "顯示網格參考線",
                 "snapline": "磁性吸附到參考線",
                 "predictNextNode": "當選擇一個節點時預測下一個節點",
+                "predictNextLineSource": {
+                    "title": "預測線路的樣式",
+                    "selected": "與所選節點的線路相同",
+                    "tool": "工具列中最後選擇的線路樣式"
+                },
                 "autoChangeStationType": "自動切換基本車站與換乘車站",
                 "disableMapPerformanceOptimization": "停用地圖效能最佳化",
                 "mapPerformanceOptimizationProgress": "已最佳化：{{optimized}}/{{total}}",
@@ -1287,6 +1299,12 @@
                     "title": "縮放節點坐標",
                     "content": "將所有節點的x和y乘以以下值：",
                     "factor": "縮放因子"
+                },
+                "yaujChange": {
+                    "title": "Yauj：批量修改屬性",
+                    "stationKind": "批量修改 Yauj 車站類型",
+                    "scopeAll": "套用於整張地圖。展開某一項即表示套用該項。",
+                    "scopeSelected": "套用於所選物件。展開某一項即表示套用該項。"
                 },
                 "changeType": {
                     "title": "修改所有物件的屬性",

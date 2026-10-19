@@ -1,5 +1,6 @@
 import { MultiDirectedGraph } from 'graphology';
 import { lineStyles } from '../components/svgs/lines/lines';
+import { getDottedClipPathD } from '../components/svgs/lines/styles/bjsubway-dotted';
 import { EdgeAttributes, GraphAttributes, LineId, NodeAttributes, NodeId } from '../constants/constants';
 import { Path } from '../constants/path';
 import { Element, LineRenderElement, getLines } from './process-elements';
@@ -67,7 +68,10 @@ const offsetNodeTransforms = (id: NodeId, dx: number, dy: number) => {
 const updatePathDRecursive = (id: string, path: Path) => {
     const root = document.getElementById(id);
     root?.querySelectorAll<SVGPathElement>('path[d]').forEach(pathElement => {
-        updatePathD(pathElement, path);
+        // A clip path holds an outline of the line, not the line itself. Copying the line's centre line into it would
+        // leave nothing to clip to, and the line would vanish until React happens to redraw it with a different path.
+        if (pathElement.hasAttribute('data-dotted-clip')) pathElement.setAttribute('d', getDottedClipPathD(path));
+        else if (!pathElement.closest('clipPath')) updatePathD(pathElement, path);
     });
 };
 

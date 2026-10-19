@@ -41,12 +41,17 @@ import {
     setDisableWarningChangeType,
     setGridLines,
     setPredictNextNode,
+    setPredictNextLineSource,
     setRandomStationsNames,
     setSnapLines,
     setStationNameTranslationMode,
     setTelemetryProject,
 } from '../../redux/app/app-slice';
-import type { RandomStationsNamesValue, StationNameTranslationMode } from '../../redux/app/app-slice';
+import type {
+    PredictNextLineSource,
+    RandomStationsNamesValue,
+    StationNameTranslationMode,
+} from '../../redux/app/app-slice';
 import { setMapEnabled } from '../../redux/param/param-slice';
 import { normalizeRandomStationsNames } from '../../redux/state-migration';
 import { setKeepLastPath } from '../../redux/runtime/runtime-slice';
@@ -55,6 +60,7 @@ import { MAX_PARALLEL_LINES_FREE, MAX_PARALLEL_LINES_PRO } from '../../util/para
 import { MapStyleSection } from './map-style-section';
 import { MasterManager } from './master-manager';
 import { ChangeTypeModal } from './procedures/change-type-modal';
+import { YaujChangeAttributeModal } from './procedures/yauj-change-attribute-modal';
 import { RemoveLinesWithSingleColorModal } from './procedures/remove-lines-with-single-color-modal';
 import { ScaleNodesModal } from './procedures/scale-nodes-modal';
 import { TranslateNodesModal } from './procedures/translate-nodes-modal';
@@ -82,6 +88,7 @@ const SettingsModal = (props: { isOpen: boolean; onClose: () => void }) => {
             gridLines,
             snapLines,
             predictNextNode,
+            predictNextLineSource,
             autoChangeStationType,
             disableMapPerformanceOptimization,
             disableWarning: { changeType: disableWarningChangeType },
@@ -99,6 +106,7 @@ const SettingsModal = (props: { isOpen: boolean; onClose: () => void }) => {
     const [isTranslateNodesOpen, setIsTranslateNodesOpen] = React.useState(false);
     const [isScaleNodesOpen, setIsScaleNodesOpen] = React.useState(false);
     const [isChangeTypeOpen, setIsChangeTypeOpen] = React.useState(false);
+    const [isYaujChangeOpen, setIsYaujChangeOpen] = React.useState(false);
     const [isRemoveLinesWithSingleColorOpen, setIsRemoveLinesWithSingleColorOpen] = React.useState(false);
     const [isUpdateColorOpen, setIsUpdateColorOpen] = React.useState(false);
     const [isManagerOpen, setIsManagerOpen] = React.useState(false);
@@ -266,6 +274,25 @@ const SettingsModal = (props: { isOpen: boolean; onClose: () => void }) => {
                                     />
                                 </HStack>
                                 <HStack mb="1">
+                                    <Text flex="1">{t('header.settings.preference.predictNextLineSource.title')}</Text>
+                                    <Select
+                                        size="xs"
+                                        width="auto"
+                                        value={predictNextLineSource}
+                                        isDisabled={!predictNextNode}
+                                        onChange={({ target: { value } }) =>
+                                            dispatch(setPredictNextLineSource(value as PredictNextLineSource))
+                                        }
+                                    >
+                                        <option value="selected">
+                                            {t('header.settings.preference.predictNextLineSource.selected')}
+                                        </option>
+                                        <option value="tool">
+                                            {t('header.settings.preference.predictNextLineSource.tool')}
+                                        </option>
+                                    </Select>
+                                </HStack>
+                                <HStack mb="1">
                                     <Text flex="1">{t('header.settings.preference.autoChangeStationType')}</Text>
                                     <Switch
                                         isChecked={autoChangeStationType}
@@ -362,6 +389,19 @@ const SettingsModal = (props: { isOpen: boolean; onClose: () => void }) => {
                                 <ChangeTypeModal
                                     isOpen={isChangeTypeOpen}
                                     onClose={() => setIsChangeTypeOpen(false)}
+                                    isSelect={false}
+                                />
+
+                                <Button
+                                    sx={procedureButtonStyle}
+                                    rightIcon={<MdReadMore />}
+                                    onClick={() => setIsYaujChangeOpen(true)}
+                                >
+                                    {t('header.settings.procedures.yaujChange.title')}
+                                </Button>
+                                <YaujChangeAttributeModal
+                                    isOpen={isYaujChangeOpen}
+                                    onClose={() => setIsYaujChangeOpen(false)}
                                     isSelect={false}
                                 />
 

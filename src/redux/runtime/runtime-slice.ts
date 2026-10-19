@@ -5,7 +5,17 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { Draft } from 'immer';
 import { YAUJ_METRO_COLOR } from '../../constants/yauj-colors';
 import type { RootState } from '..';
-import { CityCode, Id, NodeId, NodeType, RuntimeMode, StationCity, Theme } from '../../constants/constants';
+import {
+    CityCode,
+    getLinePathAndStyle,
+    Id,
+    NodeId,
+    NodeType,
+    RuntimeMode,
+    StationCity,
+    Theme,
+} from '../../constants/constants';
+import type { LineStyleType } from '../../constants/lines';
 import { GlobalAlertId } from '../../constants/global-alerts';
 import { MAX_MASTER_NODE_FREE, MAX_MASTER_NODE_PRO } from '../../constants/master';
 import { MiscNodeType } from '../../constants/nodes';
@@ -58,6 +68,10 @@ interface RuntimeState {
      * Will never be free!
      */
     lastTool: Omit<RuntimeMode, 'free'> | undefined;
+    /**
+     * The line style of the last line tool picked. Unlike lastTool it survives picking a station tool afterwards.
+     */
+    lastLineStyle?: LineStyleType;
     /**
      * If this is true, we will never set runtime.mode to free after placing edges.
      */
@@ -113,6 +127,7 @@ const initialState: RuntimeState = {
     },
     mode: 'free',
     lastTool: undefined,
+    lastLineStyle: undefined,
     keepLastPath: false,
     // yauj branch: start from the Kwun Tong Line colour, the default metro colour of the yauj styles.
     theme: [...YAUJ_METRO_COLOR],
@@ -247,6 +262,7 @@ const resetProjectInteractionState = (state: Draft<RuntimeState>) => {
     state.active = undefined;
     state.mode = 'free';
     state.lastTool = undefined;
+    state.lastLineStyle = undefined;
     state.isDetailsOpen = 'close';
     state.radialTouchMenu = defaultRadialTouchMenuState;
 };
@@ -296,6 +312,9 @@ const runtimeSlice = createSlice({
         setMode: (state, action: PayloadAction<RuntimeMode>) => {
             if (state.mode !== 'free' && !state.mode.startsWith('reconcile-')) state.lastTool = state.mode;
             state.mode = action.payload;
+            if (action.payload.startsWith('line-')) {
+                state.lastLineStyle = getLinePathAndStyle(action.payload).style;
+            }
             state.isDetailsOpen = getIsDetailsOpen(state);
         },
         setKeepLastPath: (state, action: PayloadAction<boolean>) => {

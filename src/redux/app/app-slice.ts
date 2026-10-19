@@ -5,6 +5,7 @@ import { MiscNodeType } from '../../constants/nodes';
 import { StationType } from '../../constants/stations';
 
 export type RandomStationsNamesValue = 'default' | 'empty' | StationCity;
+export type PredictNextLineSource = 'selected' | 'tool';
 export type StationNameTranslationMode = 'pinyin-spaced' | 'pinyin-compact' | 'pinyin-uppercase' | 'semantic';
 
 /**
@@ -48,6 +49,11 @@ export interface AppState {
         gridLines: boolean;
         snapLines: boolean;
         predictNextNode: boolean;
+        /**
+         * Where the predicted next line gets its style from: the line of the selected node, or the style last picked in
+         * the tools panel.
+         */
+        predictNextLineSource: PredictNextLineSource;
         autoChangeStationType: boolean;
         /** Whether map tiles should remain as SVG instead of being rasterized while the editor is idle. */
         disableMapPerformanceOptimization: boolean;
@@ -88,6 +94,7 @@ export const initialState: AppState = {
         gridLines: true,
         snapLines: false,
         predictNextNode: true,
+        predictNextLineSource: 'selected',
         autoChangeStationType: true,
         disableMapPerformanceOptimization: false,
         disableWarning: {
@@ -132,6 +139,9 @@ const appSlice = createSlice({
         },
         setPredictNextNode: (state, action: PayloadAction<boolean>) => {
             state.preference.predictNextNode = action.payload;
+        },
+        setPredictNextLineSource: (state, action: PayloadAction<PredictNextLineSource>) => {
+            state.preference.predictNextLineSource = action.payload;
         },
         setAutoChangeStationType: (state, action: PayloadAction<boolean>) => {
             state.preference.autoChangeStationType = action.payload;
@@ -190,6 +200,7 @@ export const {
     setGridLines,
     setSnapLines,
     setPredictNextNode,
+    setPredictNextLineSource,
     setAutoChangeStationType,
     setDisableMapPerformanceOptimization,
     setDisableWarningChangeType,
