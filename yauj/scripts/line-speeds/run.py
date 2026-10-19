@@ -4,8 +4,8 @@
     python3 yauj/scripts/line-speeds/run.py            # from the repo root
     python3 yauj/scripts/line-speeds/run.py JingJinJi
 
-Fetched wiki pages are cached in yauj/cache/wiki-pages.json (git-ignored), so reruns only hit the network for new lines.
-Results go to yauj/cache/line-speeds.json. Read-only on the saves.
+Fetched wiki pages are cached in yauj/cache/raw/wiki-pages.json (git-ignored), so reruns only hit the network for new lines.
+Results go to yauj/cache/research/line-speeds.json. Read-only on the saves.
 """
 import glob, json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
@@ -13,7 +13,7 @@ from speeds import lookup
 from lines import spec
 
 regions = sys.argv[1:] or ['JingJinJi', 'YangtzeRiverDelta']
-out = 'yauj/cache/line-speeds.json'
+out = 'yauj/cache/research/line-speeds.json'
 res = json.load(open(out))['lines'] if os.path.exists(out) else {}
 for r in regions:
     f = sorted(glob.glob(f'yauj/saves/RailMapToolkit_{r}_*.json'))[-1]
@@ -33,4 +33,4 @@ for r in regions:
         if not c: res[key] = {'title': None, 'speed': None, 'src': 'nospec', 'kind': None}; continue
         x = lookup(c); x['kind'] = kind; res[key] = x
         print(key, x['title'], x['speed'], x['src'], flush=True)
-json.dump({'fetched': 'see git/mtime', 'lines': res}, open(out, 'w'), ensure_ascii=False, indent=1)
+json.dump({'fetched': __import__('datetime').date.today().isoformat(), 'lines': res}, open(out, 'w'), ensure_ascii=False, indent=1)

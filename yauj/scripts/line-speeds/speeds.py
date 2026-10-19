@@ -1,7 +1,7 @@
 import json,re,urllib.parse,urllib.request,collections,sys
 UA={'User-Agent':'jeremy-research/1.0'}
 import time,os,urllib.error
-CACHE=os.environ.get('YAUJ_WIKI_CACHE','yauj/cache/wiki-pages.json')
+CACHE=os.environ.get('YAUJ_WIKI_CACHE','yauj/cache/raw/wiki-pages.json')
 _c=json.load(open(CACHE)) if os.path.exists(CACHE) else {}
 def fetch(title):
     if title in _c: return tuple(_c[title])

@@ -2,7 +2,7 @@
 // Convert a yauj map save (custom yauj styles) into a JSON that stock RMP can open, swapping every yauj node and
 // line for the closest stock one. This is the reverse of to-yauj-styles.mjs; the conversion is lossy, see CLAUDE.md.
 //
-//   node yauj/scripts/to-stock-badges.mjs <save.json> [out.json]
+//   node yauj/scripts/to-stock-styles.mjs <save.json> [out.json]
 //   npm run yauj:stock -- <save.json> [out.json]
 //
 // Default output: yauj/stock/<name>_stock.json. The input is never modified. What is converted:
@@ -24,7 +24,7 @@ import path from 'node:path';
 
 const [, , input, output] = process.argv;
 if (!input) {
-    console.error('Usage: node yauj/scripts/to-stock-badges.mjs <save.json> [out.json]');
+    console.error('Usage: node yauj/scripts/to-stock-styles.mjs <save.json> [out.json]');
     process.exit(1);
 }
 

@@ -6,11 +6,14 @@
 //
 // Default output: <save>_yauj-styles.json next to the input. The input is never modified.
 //
+// Badges:   stock line badges -> yauj-line-badge, tier from the design speed in yauj/cache/research/line-speeds.json.
 // Lines:    single-color -> yauj-metro (or yauj-border when its colour is #ebebeb), london-rail -> yauj-rail, mtr-light-rail -> yauj-light-rail,
 //           bjsubway-dotted -> yauj-construction, mtr-unpaid-area -> yauj-osi, mtr-paid-area -> yauj-interchange.
 //           mtr-race-days (express overlay) -> yauj-limited.
 // Stations: mtr -> yauj-station (in service), bjsubway-basic -> yauj-station (construction when `construction`,
 //           closed when not `open`), chongqingrt-basic -> yauj-station (light rail terminus).
+// Line ends: where a yauj-metro line (by colour) has one solid segment at a station, the station becomes a Terminus (plain
+//           station: Terminus type in the line colour; interchange: that line's status "terminus"). Rail and light rail are skipped.
 // Text:     the three title lines -> yauj-map-title; paired Chinese + English city (20/15) and district (15/10) labels -> one yauj-place-label.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -96,7 +99,11 @@ for (const node of graph.nodes) {
     } else if (a.type === 'bjsubway-basic') {
         const { names, nameOffsetX, nameOffsetY, open, construction, preciseNameOffsets } = a['bjsubway-basic'];
         delete a['bjsubway-basic'];
-        const kind = !open ? 'closed' : construction ? 'construction' : 'normal';
+        // "Not open" only means closed where a solid line reaches the station; a station that only dotted (under construction)
+        // lines reach is simply under construction.
+        const styles0 = [...(touching.get(node.key) ?? [])].filter(x => !['yauj-osi', 'yauj-interchange', 'yauj-border'].includes(x));
+        const onlyDotted = styles0.length > 0 && styles0.every(x => x === 'yauj-construction' || x === 'yauj-light-rail-construction');
+        const kind = !open ? (onlyDotted ? 'construction' : 'closed') : construction ? 'construction' : 'normal';
         station(a, { names, nameOffsetX, nameOffsetY, kind, preciseNameOffsets });
         count(`station bjsubway-basic -> yauj-station (${kind})`);
         // Flag the mixed cases: "construction" on a solid line only, or "closed" on a dotted line.
@@ -113,6 +120,95 @@ for (const node of graph.nodes) {
         count('station chongqingrt-basic -> yauj-station (light rail terminus)');
     }
 }
+
+/* ----- Line ends: a station where a metro line (by colour id) has exactly one solid segment is its terminus ----- */
+// Only yauj-metro segments count: rail and light rail ends are left as ordinary stations, and an end that continues as an
+// under construction extension is still marked (the open line ends there today). Plain stations get the Terminus station type
+// in the line colour, interchanges get status "terminus" on that line; an interchange that does not list the line is reported.
+const metroAt = new Map(); // station key -> colour id -> { theme, count }
+for (const edge of graph.edges) {
+    const a = edge.attributes;
+    if (a.style !== 'yauj-metro') continue;
+    const theme = a['yauj-metro']?.color;
+    if (!theme) continue;
+    for (const k of [edge.source, edge.target]) {
+        if (!metroAt.has(k)) metroAt.set(k, new Map());
+        const lines = metroAt.get(k);
+        const entry = lines.get(theme[1]) ?? { theme, count: 0 };
+        entry.count++;
+        lines.set(theme[1], entry);
+    }
+}
+for (const node of graph.nodes) {
+    const a = node.attributes;
+    if (a.type !== 'yauj-station' || a['yauj-station'].kind !== 'normal') continue;
+    const st = a['yauj-station'];
+    const ends = [...(metroAt.get(node.key) ?? [])].filter(([, v]) => v.count === 1);
+    if (ends.length === 0) continue;
+    const row = st.transfer[0] ?? [];
+    const label = `${st.names[0] || st.names[1] || node.key} (${a.x}, ${a.y})`;
+    if (row.length === 0) {
+        st.kind = 'lineColor';
+        st.color = ends[0][1].theme;
+        count('line end -> Terminus station type');
+        if (ends.length > 1) review.push(`${label} ends ${ends.map(([id]) => id).join(', ')} but has no interchange list; only ${ends[0][0]} was marked`);
+        continue;
+    }
+    for (const [id] of ends) {
+        const info = row.find(t => t[1] === id);
+        if (!info) {
+            review.push(`${label} ends ${id} but its interchange does not list that line (add it, status Terminus)`);
+            continue;
+        }
+        while (info.length < 7) info.push('');
+        info[6] = 'terminus';
+        count('line end -> interchange status terminus');
+    }
+}
+
+/* ----- Line badges: stock badge -> yauj-line-badge, tier from the design speed in yauj/cache/research/line-speeds.json ----- */
+// Speed bands (km/h): metro <= 80 circle, fast < 120, higher < 160, high >= 160; regional < 140, highRegional >= 140.
+// Metro vs regional is the service type ("kind" in the cache). Without a cache entry or a speed the plain tier of the
+// kind is used and the badge is listed under "Check by hand".
+const region = /RailMapToolkit_([A-Za-z]+)_/.exec(path.basename(input))?.[1];
+const speedsPath = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'cache', 'research', 'line-speeds.json');
+const speeds = fs.existsSync(speedsPath) ? JSON.parse(fs.readFileSync(speedsPath, 'utf8')).lines : {};
+const speedOf = (colorId, label) =>
+    speeds[`${region}|${colorId}|${label}`] ??
+    Object.entries(speeds).find(([k]) => k.startsWith(`${region}|${colorId}|`))?.[1];
+const tierOf = (kind, speed) => {
+    if (kind === 'regional') return speed == null || speed < 140 ? 'regional' : 'highRegional';
+    if (speed == null || speed <= 80) return 'metro';
+    return speed < 120 ? 'fast' : speed < 160 ? 'higher' : 'high';
+};
+// The Chongqing and Suzhou badges are anchored at their top left (20x20), the 2021 ones at their centre.
+const BADGES = {
+    'chongqingrt-num-line-badge': { offset: 10, names: b => [String(b.num), ''] },
+    'chongqingrt-text-line-badge': { offset: 10, names: b => b.names },
+    'suzhourt-num-line-badge': { offset: 10, names: b => [`${b.num}${b.branch ? 'B' : ''}`, ''] },
+    'chongqingrt-num-line-badge-2021': { offset: 0, names: b => [String(b.num), ''] },
+    'chongqingrt-text-line-badge-2021': { offset: 0, names: b => b.names },
+};
+const tierNotes = new Map();
+for (const node of graph.nodes) {
+    const a = node.attributes;
+    const spec = BADGES[a.type];
+    if (!spec) continue;
+    const badge = a[a.type];
+    const names = spec.names(badge).map(s => String(s ?? ''));
+    const entry = speedOf(badge.color[1], names[0]);
+    const kind = entry?.kind ?? (badge.isRapid ? 'regional' : 'metro');
+    const speed = entry?.speed ?? null;
+    const tier = tierOf(kind, speed);
+    delete a[a.type];
+    a.x += spec.offset;
+    a.y += spec.offset;
+    a.type = 'yauj-line-badge';
+    a['yauj-line-badge'] = { names, tier, color: badge.color };
+    count(`badge -> yauj-line-badge (${tier})`);
+    if (speed == null) tierNotes.set(`${badge.color[1]}|${names[0]}`, `badge ${names[0]} (${badge.color[1]}): no design speed in the cache, tier left at "${tier}"`);
+}
+review.push(...tierNotes.values());
 
 // Pair Chinese + English place text.
 const PRESETS = [
