@@ -15,6 +15,16 @@ Customisations on this branch, all local to Jeremy's setup:
   warnings disabled. Default map for a fresh profile is the Pearl River Delta snapshot
   (`getInitialParam` in `src/util/save.ts`, imports from `yauj/saves/`; bump the filename when a
   newer snapshot is saved). The tutorial is still available via `getTutorialParam`.
+- "Yauj: change attributes in batch" (Settings > Procedures, and in the multiple selection panel): Yauj station type, name
+  offset X / Y, line style and colour, for the whole map or the selected objects (`yauj-change-attribute-modal.tsx`,
+  `src/util/yauj-change-attributes.ts`). Open a section to apply it.
+- Dark canvas (Settings > Preferences, `src/util/dark-canvas.ts`): darkens only the canvas background on screen (slider for
+  how dark); the colours drawn on it are not changed. It is separate from the app's own dark mode, which dims the whole
+  canvas, and replaces that dimming while it is on. Exports are not affected.
+- Subscriber mode: `.env.development.local` (git-ignored) sets `VITE_YAUJ_PRO=1`, which makes `npm run dev` behave as a
+  subscriber (`src/redux/account/account-slice.ts`, `isYaujPro`): no client-side limits on parallel lines, master nodes,
+  line styles / paths or the export watermark. Cloud save and semantic translation still need a real login. Restart the dev
+  server after changing the file; delete it to go back to the free limits.
 - Dev-only "yauj" dropdown (next to the Open menu in the header, only under `npm run dev`),
   backed by a small Vite plugin (`yaujSaves` in `vite.config.mts`, `apply: 'serve'`, only plain
   .json/.svg names in `yauj/saves/`):
@@ -195,6 +205,9 @@ Custom styles that exist only on this branch, for the same reason as `yauj-line-
 - Palette sync: `npm run yauj:palette -- yauj/saves/<save>.json [--write]` brings every line, badge, station and interchange
   colour up to date with the current RMG palette (dry run unless `--write`; writes `<save>_palette-synced.json`).
   `npm run yauj:terminus-colors` does the opposite for lines whose Terminus stations carry the newer colour.
+- Interchange lists after a conversion: `python3 yauj/scripts/add-own-line-interchanges.py <yauj-styles save>` adds the lines
+  that run through a station but are missing from its list (the stock list names only the other lines): open, terminus (end
+  of the line) or construction (only dotted segments). It never touches positions, lines or names.
 - Yauj - Rail has a "Slower speed" switch (inverted dashes, the old limited service look).
 - Terminus (station type): HK-sized circle with a border in the line colour, name drawn like the HK station.
   Use it where a limited service line just ends early.

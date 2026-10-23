@@ -5,9 +5,17 @@ export interface ActiveSubscriptions {
     RMP_EXPORT: boolean;
 }
 
+/**
+ * yauj branch, local only: VITE_YAUJ_PRO=1 (set in .env.development.local, which git ignores) makes this build behave as a
+ * subscriber, whatever the login says. It lifts the limits the app applies on the client (parallel lines, master nodes,
+ * line styles and paths, export watermark ...). Features that need the RMP server (cloud save, semantic translation) still
+ * need a real login.
+ */
+export const isYaujPro = () => import.meta.env.VITE_YAUJ_PRO === '1';
+
 export const defaultActiveSubscriptions: ActiveSubscriptions = {
-    RMP_CLOUD: false,
-    RMP_EXPORT: false,
+    RMP_CLOUD: isYaujPro(),
+    RMP_EXPORT: isYaujPro(),
 };
 
 /**
@@ -42,7 +50,7 @@ const accountSlice = createSlice({
             state.state = action.payload;
         },
         setActiveSubscriptions: (state, action: PayloadAction<ActiveSubscriptions>) => {
-            state.activeSubscriptions = action.payload;
+            state.activeSubscriptions = isYaujPro() ? { RMP_CLOUD: true, RMP_EXPORT: true } : action.payload;
         },
         setToken: (state, action: PayloadAction<string | undefined>) => {
             state.token = action.payload;

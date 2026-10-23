@@ -36,6 +36,7 @@ import { setError, setVideoOptions, useTimelineDispatch, useTimelineSelector } f
 import { downloadBlobAs } from '../../util/download';
 import { exportVideo, VideoExportOptions, VideoExportResolution } from '../../util/video-export';
 import { getUnavailableLineIds } from '../../util/line-path-availability';
+import { isYaujPro } from '../../redux/account/account-slice';
 import { useSvgRenderContext } from '../svg-render-context';
 import TermsAndConditionsModal from './terms-and-conditions';
 
@@ -56,7 +57,7 @@ export default function VideoExportModal({ isOpen, onClose }: VideoExportModalPr
     const isAllowAppTelemetry = rmgRuntime.isAllowAnalytics();
     const { t } = useTranslation();
     const mapEnabled = active.revision.mapEnabled;
-    const isSubscriber = false;
+    const isSubscriber = isYaujPro(); // upstream hard-codes false here (yauj branch: follows VITE_YAUJ_PRO)
     const unavailableLineCount = React.useMemo(
         () => getUnavailableLineIds(graph, mapEnabled, isSubscriber).size,
         [graph, mapEnabled, isSubscriber]

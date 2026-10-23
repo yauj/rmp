@@ -8,3 +8,8 @@ interface ImportMetaEnv {
 interface ImportMeta {
     readonly env: ImportMetaEnv;
 }
+
+interface ImportMetaEnv {
+    /** yauj branch, local only: "1" makes the app behave as a subscriber. */
+    readonly VITE_YAUJ_PRO?: string;
+}
