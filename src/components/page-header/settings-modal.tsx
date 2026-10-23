@@ -14,6 +14,10 @@ import {
     ModalOverlay,
     Select,
     StackDivider,
+    Slider,
+    SliderFilledTrack,
+    SliderThumb,
+    SliderTrack,
     Switch,
     SystemStyleObject,
     Table,
@@ -41,6 +45,7 @@ import {
     setDisableWarningChangeType,
     setGridLines,
     setPredictNextNode,
+    setDarkCanvas,
     setPredictNextLineSource,
     setRandomStationsNames,
     setSnapLines,
@@ -55,6 +60,7 @@ import type {
 import { setMapEnabled } from '../../redux/param/param-slice';
 import { normalizeRandomStationsNames } from '../../redux/state-migration';
 import { setKeepLastPath } from '../../redux/runtime/runtime-slice';
+import { DARK_CANVAS_BACKGROUND_RANGE } from '../../util/dark-canvas';
 import { isMacClient } from '../../util/helpers';
 import { MAX_PARALLEL_LINES_FREE, MAX_PARALLEL_LINES_PRO } from '../../util/parallel';
 import { MapStyleSection } from './map-style-section';
@@ -89,6 +95,7 @@ const SettingsModal = (props: { isOpen: boolean; onClose: () => void }) => {
             snapLines,
             predictNextNode,
             predictNextLineSource,
+            darkCanvas,
             autoChangeStationType,
             disableMapPerformanceOptimization,
             disableWarning: { changeType: disableWarningChangeType },
@@ -252,6 +259,37 @@ const SettingsModal = (props: { isOpen: boolean; onClose: () => void }) => {
                                         </option>
                                     </Select>
                                 </HStack>
+                                <HStack mb="1">
+                                    <Text flex="1">{t('header.settings.preference.darkCanvas.title')}</Text>
+                                    <Switch
+                                        isChecked={darkCanvas.enabled}
+                                        onChange={({ target: { checked } }) =>
+                                            dispatch(setDarkCanvas({ enabled: checked }))
+                                        }
+                                    />
+                                </HStack>
+                                {darkCanvas.enabled && (
+                                    <>
+                                        <HStack mb="1" pl="3">
+                                            <Text flex="1" fontSize="sm">
+                                                {t('header.settings.preference.darkCanvas.background')}
+                                            </Text>
+                                            <Slider
+                                                aria-label={t('header.settings.preference.darkCanvas.background')}
+                                                width="120px"
+                                                min={DARK_CANVAS_BACKGROUND_RANGE[0]}
+                                                max={DARK_CANVAS_BACKGROUND_RANGE[1]}
+                                                value={darkCanvas.background}
+                                                onChange={background => dispatch(setDarkCanvas({ background }))}
+                                            >
+                                                <SliderTrack>
+                                                    <SliderFilledTrack />
+                                                </SliderTrack>
+                                                <SliderThumb />
+                                            </Slider>
+                                        </HStack>
+                                    </>
+                                )}
                                 <HStack mb="1">
                                     <Text flex="1">{t('header.settings.preference.gridline')}</Text>
                                     <Switch

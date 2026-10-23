@@ -1257,6 +1257,10 @@
                 },
                 "gridline": "격자 가이드 라인 표시",
                 "snapline": "가이드 라인과 포인트에 자동 스냅",
+                "darkCanvas": {
+                    "title": "다크 캔버스 (다크 모드와 별도)",
+                    "background": "배경 밝기"
+                },
                 "predictNextNode": "노드를 선택했을 때 다음 노드를 예측하기",
                 "predictNextLineSource": {
                     "title": "예측하는 선의 스타일",

@@ -27,6 +27,7 @@ import {
     showDetailsPanel,
 } from '../redux/runtime/runtime-slice';
 import { checkAndChangeStationIntType } from '../util/change-types';
+import { getDarkCanvasStyle } from '../util/dark-canvas';
 import { exportSelectedNodesAndEdges, importSelectedNodesAndEdges, parseClipboardData } from '../util/clipboard';
 import { findEdgesConnectedByNodes, findNodesInRectangle } from '../util/graph';
 import {
@@ -92,7 +93,12 @@ const SvgWrapper = () => {
 
     const size = useWindowSize();
     const { height, width } = getCanvasSize(size);
-    const canvasFilter = useColorModeValue('none', 'brightness(0.78) contrast(0.95)');
+    const darkCanvas = useRootSelector(state => state.app.preference.darkCanvas);
+    const appDarkFilter = useColorModeValue('none', 'brightness(0.78) contrast(0.95)');
+    // The dark canvas setting replaces the dimming of the app's dark mode.
+    const canvasStyle = darkCanvas.enabled
+        ? getDarkCanvasStyle(darkCanvas)
+        : { backgroundColor: '#ffffff', filter: appDarkFilter };
     const mapCanvasRef = React.useRef<MapCanvasHandle>(null);
 
     /**
@@ -469,8 +475,7 @@ const SvgWrapper = () => {
                     left: 40,
                     userSelect: 'none',
                     touchAction: 'none',
-                    backgroundColor: '#ffffff',
-                    filter: canvasFilter,
+                    ...canvasStyle,
                 }}
                 height={height}
                 width={width}

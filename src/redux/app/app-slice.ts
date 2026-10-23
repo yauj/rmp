@@ -3,6 +3,7 @@ import { StationCity } from '../../constants/constants';
 import { LinePathType, LineStyleType } from '../../constants/lines';
 import { MiscNodeType } from '../../constants/nodes';
 import { StationType } from '../../constants/stations';
+import { DarkCanvas, defaultDarkCanvas, normalizeDarkCanvas } from '../../util/dark-canvas';
 
 export type RandomStationsNamesValue = 'default' | 'empty' | StationCity;
 export type PredictNextLineSource = 'selected' | 'tool';
@@ -55,6 +56,8 @@ export interface AppState {
          */
         predictNextLineSource: PredictNextLineSource;
         autoChangeStationType: boolean;
+        /** Yauj branch: a dark canvas separate from the app's dark mode (see util/dark-canvas.ts). */
+        darkCanvas: DarkCanvas;
         /** Whether map tiles should remain as SVG instead of being rasterized while the editor is idle. */
         disableMapPerformanceOptimization: boolean;
         /**
@@ -96,6 +99,7 @@ export const initialState: AppState = {
         predictNextNode: true,
         predictNextLineSource: 'selected',
         autoChangeStationType: true,
+        darkCanvas: defaultDarkCanvas,
         disableMapPerformanceOptimization: false,
         disableWarning: {
             changeType: true,
@@ -142,6 +146,9 @@ const appSlice = createSlice({
         },
         setPredictNextLineSource: (state, action: PayloadAction<PredictNextLineSource>) => {
             state.preference.predictNextLineSource = action.payload;
+        },
+        setDarkCanvas: (state, action: PayloadAction<Partial<DarkCanvas>>) => {
+            state.preference.darkCanvas = normalizeDarkCanvas({ ...state.preference.darkCanvas, ...action.payload });
         },
         setAutoChangeStationType: (state, action: PayloadAction<boolean>) => {
             state.preference.autoChangeStationType = action.payload;
@@ -202,6 +209,7 @@ export const {
     setPredictNextNode,
     setPredictNextLineSource,
     setAutoChangeStationType,
+    setDarkCanvas,
     setDisableMapPerformanceOptimization,
     setDisableWarningChangeType,
     setShowOnlyFavorites,

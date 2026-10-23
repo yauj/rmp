@@ -1260,6 +1260,10 @@
                 },
                 "gridline": "グリッドガイドラインを表示",
                 "snapline": "ガイドラインおよびポイントに自動的にスナップする",
+                "darkCanvas": {
+                    "title": "ダークキャンバス（ダークモードとは別）",
+                    "background": "背景の明るさ"
+                },
                 "predictNextNode": "節点を選択したときに次の節点を予測する",
                 "predictNextLineSource": {
                     "title": "予測する線のスタイル",

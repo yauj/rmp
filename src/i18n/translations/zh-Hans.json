@@ -1257,6 +1257,10 @@
                 },
                 "gridline": "显示网格参考线",
                 "snapline": "磁性吸附到参考线",
+                "darkCanvas": {
+                    "title": "深色画布（独立于深色模式）",
+                    "background": "背景明度"
+                },
                 "predictNextNode": "当选择一个节点时预测下一个节点",
                 "predictNextLineSource": {
                     "title": "预测线路的样式",

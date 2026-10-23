@@ -14,6 +14,7 @@ import {
     setDisableWarningChangeType,
     setGridLines,
     setPredictNextNode,
+    setDarkCanvas,
     setPredictNextLineSource,
     setRandomStationsNames,
     setShowOnlyFavorites,
@@ -69,6 +70,7 @@ export const initStore = async (store: RootStore) => {
             appState.preference.predictNextLineSource === 'tool'
         )
             store.dispatch(setPredictNextLineSource(appState.preference.predictNextLineSource));
+        if ('darkCanvas' in appState.preference) store.dispatch(setDarkCanvas(appState.preference.darkCanvas));
         if ('autoChangeStationType' in appState.preference)
             store.dispatch(setAutoChangeStationType(appState.preference.autoChangeStationType));
         if ('disableMapPerformanceOptimization' in appState.preference)

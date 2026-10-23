@@ -70,3 +70,17 @@ describe('SettingsModal map performance preference', () => {
         expect(screen.getByText('Optimized: 4/5')).toBeInTheDocument();
     });
 });
+
+describe('SettingsModal dark canvas preference', () => {
+    it('turns the dark canvas on and shows its background slider', () => {
+        const store = renderSettings(false);
+        expect(store.getState().app.preference.darkCanvas.enabled).toBe(false);
+        expect(screen.queryByText('Background lightness')).toBeNull();
+
+        const label = screen.getByText('Dark canvas (separate from dark mode)');
+        fireEvent.click(label.parentElement!.querySelector<HTMLInputElement>('input[type="checkbox"]')!);
+
+        expect(store.getState().app.preference.darkCanvas.enabled).toBe(true);
+        expect(screen.getByText('Background lightness')).toBeInTheDocument();
+    });
+});

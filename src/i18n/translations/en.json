@@ -1258,6 +1258,10 @@
                 },
                 "gridline": "Show grid guide lines",
                 "snapline": "Auto snapping to the guide lines and points",
+                "darkCanvas": {
+                    "title": "Dark canvas (separate from dark mode)",
+                    "background": "Background lightness"
+                },
                 "predictNextNode": "Predict next nodes when a node is selected",
                 "predictNextLineSource": {
                     "title": "Style of predicted lines",
